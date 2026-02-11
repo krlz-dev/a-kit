@@ -71,18 +71,19 @@ export const TEMPLATES = [
     ],
   },
   {
-    name: "Auth0 Web App", desc: "App ↔ Auth0 → Server token flow",
+    name: "Auth0 Web App", desc: "App ↔ Auth0 → Cloud (API + DB)",
     nodes: [
-      { type: "web", label: "Web App", color: "#10b981", x: 160, y: 80 },
-      { type: "auth", label: "Auth0", color: "#f59e0b", x: 500, y: 80 },
-      { type: "server", label: "API Server", color: "#3b82f6", x: 160, y: 340 },
-      { type: "database", label: "Database", color: "#f97316", x: 160, y: 520 },
+      { type: "web", label: "Web App", color: "#10b981", x: 160, y: 60 },
+      { type: "auth", label: "Auth0", color: "#f59e0b", x: 500, y: 60 },
+      { type: "group", label: "Cloud", color: "#64748b", x: 100, y: 230, w: 260, h: 380 },
+      { type: "server", label: "API Server", color: "#3b82f6", x: 165, y: 290 },
+      { type: "database", label: "Database", color: "#f97316", x: 165, y: 470 },
     ],
     conns: [
       [0, 1, "#f59e0b", true, "auth-token"],
-      [0, 2, "#c8e600", false, "request + token"],
-      [2, 1, "#06b6d4", false, "validate token"],
-      [2, 3, "#f97316", false, ""],
+      [0, 3, "#c8e600", false, "request + token"],
+      [3, 1, "#06b6d4", false, "validate token"],
+      [3, 4, "#f97316", false, ""],
     ],
   },
   {
