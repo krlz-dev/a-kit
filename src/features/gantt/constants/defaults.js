@@ -1,0 +1,15 @@
+export const DEFAULT_TASKS = [
+  { id: 1, name: 'Project Planning', type: 'group', start: '2026-01-06', end: '2026-01-20' },
+  { id: 2, name: 'Requirements gathering', start: '2026-01-06', end: '2026-01-10', color: 'blue', progress: 100, assignee: 'JD' },
+  { id: 3, name: 'Technical specifications', start: '2026-01-08', end: '2026-01-14', color: 'blue', progress: 75, assignee: 'AS', dependsOn: 2 },
+  { id: 4, name: 'Design approval', start: '2026-01-15', end: '2026-01-15', type: 'milestone', dependsOn: 3 },
+  { id: 5, name: 'Development', type: 'group', start: '2026-01-13', end: '2026-02-07' },
+  { id: 6, name: 'Frontend development', start: '2026-01-13', end: '2026-01-28', color: 'green', progress: 40, assignee: 'MK' },
+  { id: 7, name: 'Backend API', start: '2026-01-15', end: '2026-01-30', color: 'purple', progress: 30, assignee: 'JD', dependsOn: 4 },
+  { id: 8, name: 'Database setup', start: '2026-01-13', end: '2026-01-20', color: 'teal', progress: 60, assignee: 'AS' },
+  { id: 9, name: 'Integration', start: '2026-01-28', end: '2026-02-07', color: 'orange', progress: 0, assignee: 'MK', dependsOn: 6 },
+  { id: 10, name: 'Testing & Launch', type: 'group', start: '2026-02-02', end: '2026-02-20' },
+  { id: 11, name: 'QA Testing', start: '2026-02-02', end: '2026-02-12', color: 'pink', progress: 0, assignee: 'QA', dependsOn: 9 },
+  { id: 12, name: 'Bug fixes', start: '2026-02-10', end: '2026-02-17', color: 'orange', progress: 0, assignee: 'JD', dependsOn: 11 },
+  { id: 13, name: 'Launch', start: '2026-02-20', end: '2026-02-20', type: 'milestone', dependsOn: 12 },
+];
