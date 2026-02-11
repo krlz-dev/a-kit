@@ -16,6 +16,7 @@ export default function Sidebar({
   onUndo, onRedo, onClearAll, onLoadTemplate,
   onSaveDesign, onLoadDesign, onDeleteDesign,
   onExportDesign, onExportSavedDesign, onImportDesign,
+  onNodeColorChange,
   pushUndo, showToast,
 }) {
   const [sidebarTab, setSidebarTab] = useState("tools");
@@ -43,7 +44,7 @@ export default function Sidebar({
         {[
           { id: "tools", label: "Tools" },
           { id: "templates", label: "Templates" },
-          { id: "saved", label: "Saved" },
+          { id: "saved", label: savedDesigns.length > 0 ? `Saved (${savedDesigns.length})` : "Saved" },
         ].map(tab => (
           <button key={tab.id} onClick={() => setSidebarTab(tab.id)} style={{
             flex: 1, padding: "10px 0", background: "transparent", border: "none",
@@ -75,6 +76,7 @@ export default function Sidebar({
             onSaveDesign={onSaveDesign}
             onExportDesign={onExportDesign}
             onImportDesign={onImportDesign}
+            onNodeColorChange={onNodeColorChange}
             pushUndo={pushUndo} showToast={showToast}
           />
         )}
@@ -83,14 +85,10 @@ export default function Sidebar({
         )}
         {sidebarTab === "saved" && (
           <DesignsTab
-            nodes={nodes} connections={connections}
             savedDesigns={savedDesigns}
-            onSaveDesign={onSaveDesign}
             onLoadDesign={onLoadDesign}
             onDeleteDesign={onDeleteDesign}
-            onExportDesign={onExportDesign}
             onExportSavedDesign={onExportSavedDesign}
-            onImportDesign={onImportDesign}
           />
         )}
       </div>

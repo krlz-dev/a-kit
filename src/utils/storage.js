@@ -1,4 +1,4 @@
-import { uid, cuid, NODE_W, NODE_H, GROUP_W, GROUP_H } from './uid';
+import { uid, cuid, NODE_W, NODE_H, GROUP_W, GROUP_H, CANVAS_W, CANVAS_H } from './uid';
 import { COMPONENTS } from '../constants/components';
 
 const STORAGE_KEY = 'akit-designs';
@@ -57,7 +57,7 @@ export function serializeDesign(name, nodes, connections) {
 
 /* ── Deserialize (portable JSON → state) ── */
 
-export function deserializeDesign(design) {
+export function deserializeDesign(design, { center = false } = {}) {
   const newNodes = design.nodes.map(n => {
     const comp = COMPONENTS.find(c => c.type === n.type);
     const isGroup = n.type === 'group';
@@ -96,6 +96,16 @@ export function deserializeDesign(design) {
       label: c.label || '',
     };
   });
+
+  if (center && newNodes.length > 0) {
+    const minX = Math.min(...newNodes.map(n => n.x));
+    const maxX = Math.max(...newNodes.map(n => n.x + n.w));
+    const minY = Math.min(...newNodes.map(n => n.y));
+    const maxY = Math.max(...newNodes.map(n => n.y + n.h));
+    const dx = (CANVAS_W - (maxX - minX)) / 2 - minX;
+    const dy = (CANVAS_H - (maxY - minY)) / 2 - minY;
+    newNodes.forEach(n => { n.x += dx; n.y += dy; });
+  }
 
   return { nodes: newNodes, connections: newConns };
 }

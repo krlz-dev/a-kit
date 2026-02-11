@@ -3,13 +3,91 @@ import Icon from '../Icon';
 
 export default function CanvasNode({
   node, selected, dragging, connectMode, editingLabel,
-  onPointerDown, onDoubleClick, onLabelChange, onEditDone,
+  onPointerDown, onDoubleClick, onLabelChange, onEditDone, onResizeStart,
 }) {
   const isSel = selected === node.id;
   const isTarget = connectMode && connectMode !== node.id;
   const isSrc = connectMode === node.id;
   const isGroup = node.type === 'group';
 
+  if (isGroup) {
+    return (
+      <div
+        data-node="true"
+        onPointerDown={onPointerDown}
+        onDoubleClick={onDoubleClick}
+        style={{
+          position: "absolute", left: node.x, top: node.y, width: node.w, height: node.h,
+          zIndex: isSel ? 6 : 5,
+          background: `${node.color}0a`,
+          border: `2px dashed ${isSrc ? ACCENT : isTarget ? `${ACCENT}44` : isSel ? `${node.color}80` : `${node.color}25`}`,
+          borderRadius: 16,
+          cursor: dragging === node.id ? "grabbing" : isTarget ? "pointer" : "grab",
+          transition: dragging === node.id ? "none" : "border-color 0.2s, box-shadow 0.2s",
+          boxShadow: isSel ? `0 0 0 1px ${node.color}25, 0 4px 20px ${node.color}10` : "none",
+          touchAction: "none",
+        }}
+      >
+        {/* Top-left label badge */}
+        <div style={{
+          position: "absolute", top: 8, left: 10,
+          display: "flex", alignItems: "center", gap: 6,
+          padding: "3px 10px 3px 6px",
+          background: `${node.color}15`,
+          borderRadius: 8,
+          maxWidth: node.w - 28,
+        }}>
+          <Icon path={node.icon} color={node.color} size={14} />
+          {editingLabel === node.id ? (
+            <input
+              autoFocus
+              defaultValue={node.label}
+              onBlur={(e) => { onLabelChange(node.id, e.target.value); onEditDone(); }}
+              onKeyDown={(e) => { if (e.key === "Enter") e.target.blur(); if (e.key === "Escape") onEditDone(); }}
+              onClick={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
+              style={{
+                width: 100, background: "rgba(0,0,0,0.5)", border: `1px solid ${ACCENT}40`,
+                borderRadius: 4, color: TEXT, fontSize: 10, fontWeight: 600,
+                padding: "2px 4px", outline: "none", fontFamily: "'IBM Plex Mono', monospace",
+              }}
+            />
+          ) : (
+            <span style={{
+              fontSize: 10, fontWeight: 600, color: node.color, opacity: 0.9,
+              overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+            }}>
+              {node.label}
+            </span>
+          )}
+        </div>
+
+        {/* Resize handle */}
+        <div
+          onPointerDown={(e) => { e.stopPropagation(); onResizeStart(e); }}
+          style={{
+            position: "absolute", bottom: 0, right: 0,
+            width: 18, height: 18, cursor: "nwse-resize",
+            opacity: isSel ? 0.7 : 0.2,
+            transition: "opacity 0.2s",
+          }}
+        >
+          <svg width="10" height="10" viewBox="0 0 10 10" style={{ position: "absolute", bottom: 4, right: 4 }}>
+            <path d="M8 2L8 8L2 8" fill="none" stroke={node.color} strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+        </div>
+
+        {isSrc && (
+          <div style={{
+            position: "absolute", top: -5, right: -5, width: 12, height: 12, borderRadius: "50%",
+            background: ACCENT, animation: "dotPulse 1s ease infinite", boxShadow: `0 0 10px ${ACCENT}`,
+          }} />
+        )}
+      </div>
+    );
+  }
+
+  // Regular node rendering
   return (
     <div
       data-node="true"
@@ -17,14 +95,10 @@ export default function CanvasNode({
       onDoubleClick={onDoubleClick}
       style={{
         position: "absolute", left: node.x, top: node.y, width: node.w, height: node.h,
-        zIndex: isGroup ? 5 : isSel || dragging === node.id ? 15 : 10,
-        background: isGroup ? "rgba(16,22,16,0.45)" : CARD_BG,
-        backdropFilter: "blur(12px)",
-        border: isGroup
-          ? `2px dashed ${isSrc ? ACCENT : isTarget ? `${ACCENT}44` : isSel ? `${node.color}70` : `${node.color}30`}`
-          : `1.5px solid ${isSrc ? ACCENT : isTarget ? `${ACCENT}44` : isSel ? `${node.color}70` : CARD_BORDER}`,
-        borderRadius: isGroup ? 20 : 16,
-        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 5,
+        zIndex: isSel || dragging === node.id ? 15 : 10,
+        background: CARD_BG, backdropFilter: "blur(12px)",
+        border: `1.5px solid ${isSrc ? ACCENT : isTarget ? `${ACCENT}44` : isSel ? `${node.color}70` : CARD_BORDER}`,
+        borderRadius: 16, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 5,
         cursor: dragging === node.id ? "grabbing" : isTarget ? "pointer" : "grab",
         transition: dragging === node.id ? "none" : "all 0.2s ease",
         boxShadow: isSel
@@ -34,11 +108,9 @@ export default function CanvasNode({
         touchAction: "none",
       }}
     >
-      {!isGroup && (
-        <div style={{ position: "absolute", top: 0, left: 20, right: 20, height: 2, background: node.color, opacity: 0.25, borderRadius: "0 0 2px 2px" }} />
-      )}
+      <div style={{ position: "absolute", top: 0, left: 20, right: 20, height: 2, background: node.color, opacity: 0.25, borderRadius: "0 0 2px 2px" }} />
 
-      <Icon path={node.icon} color={node.color} size={isGroup ? 28 : 22} />
+      <Icon path={node.icon} color={node.color} size={22} />
 
       {editingLabel === node.id ? (
         <input

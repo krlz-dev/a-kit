@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { ACCENT, BG, TEXT, TEXT_DIM, TEXT_MID, SURFACE, CONN_COLORS } from '../../constants';
+import { exportAsPNG, exportAsJPG, exportAsGIF, exportAsWebM } from '../../utils/exportCanvas';
 import NodeInspector from './NodeInspector';
 import LinkInspector from './LinkInspector';
 
@@ -12,8 +14,23 @@ export default function ToolsTab({
   onToggleAnimating, onSetSpeed, onSetConnColorIdx,
   onUndo, onRedo, onClearAll,
   onSaveDesign, onExportDesign, onImportDesign,
+  onNodeColorChange,
   pushUndo, showToast,
 }) {
+  const [exporting, setExporting] = useState(null); // 'png' | 'jpg' | 'gif' | 'webm' | null
+
+  const doExport = async (type, fn) => {
+    setExporting(type);
+    showToast(`Exporting ${type.toUpperCase()}…`);
+    try {
+      await fn((p) => {}); // progress callback (unused for now)
+      showToast(`Exported as ${type.toUpperCase()}`);
+    } catch (err) {
+      showToast(err.message || 'Export failed');
+    }
+    setExporting(null);
+  };
+
   if (selectedNode) {
     return (
       <NodeInspector
@@ -23,6 +40,7 @@ export default function ToolsTab({
         onSetEditingLabel={onSetEditingLabel} onToggleConnect={onToggleConnect}
         onUnlink={onUnlinkSelected} onDelete={onDeleteSelected}
         onSelectConn={onSelectConn} onRemoveConn={onRemoveConn}
+        onNodeColorChange={onNodeColorChange}
         pushUndo={pushUndo} nodes={nodes} allConnections={connections} showToast={showToast}
       />
     );
@@ -102,7 +120,7 @@ export default function ToolsTab({
       <div style={{ marginTop: 16 }}>
         <div style={{ fontSize: 9, fontWeight: 600, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>File</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-          <button className="sidebar-btn" onClick={() => onSaveDesign(prompt("Design name:") || "")} disabled={nodes.length === 0}>
+          <button className="sidebar-btn" onClick={() => { const n = prompt("Design name:"); if (n?.trim()) onSaveDesign(n.trim()); }} disabled={nodes.length === 0}>
             <svg width="15" height="15" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z" fill="currentColor" /></svg>
             Save
           </button>
@@ -115,6 +133,35 @@ export default function ToolsTab({
             Import JSON
           </button>
         </div>
+      </div>
+
+      {/* Export As */}
+      <div style={{ marginTop: 16 }}>
+        <div style={{ fontSize: 9, fontWeight: 600, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>Export As</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 3 }}>
+          <button className="sidebar-btn" onClick={() => doExport('png', exportAsPNG)} disabled={nodes.length === 0 || exporting}>
+            <svg width="15" height="15" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" fill="currentColor" /></svg>
+            {exporting === 'png' ? 'Exporting…' : 'PNG'}
+          </button>
+          <button className="sidebar-btn" onClick={() => doExport('jpg', exportAsJPG)} disabled={nodes.length === 0 || exporting}>
+            <svg width="15" height="15" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" fill="currentColor" /></svg>
+            {exporting === 'jpg' ? 'Exporting…' : 'JPG'}
+          </button>
+          <button className="sidebar-btn" onClick={() => doExport('gif', exportAsGIF)} disabled={nodes.length === 0 || exporting}>
+            <svg width="15" height="15" viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z" fill="currentColor" /></svg>
+            {exporting === 'gif' ? 'Exporting…' : 'GIF'}
+          </button>
+          <button className="sidebar-btn" onClick={() => doExport('webm', exportAsWebM)} disabled={nodes.length === 0 || exporting}>
+            <svg width="15" height="15" viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z" fill="currentColor" /></svg>
+            {exporting === 'webm' ? 'Exporting…' : 'WebM'}
+          </button>
+        </div>
+        {exporting && (
+          <div style={{ marginTop: 6, fontSize: 10, color: ACCENT, display: "flex", alignItems: "center", gap: 6 }}>
+            <div style={{ width: 6, height: 6, borderRadius: "50%", background: ACCENT, animation: "dotPulse 1s ease infinite" }} />
+            {exporting === 'gif' || exporting === 'webm' ? 'Capturing frames…' : 'Processing…'}
+          </div>
+        )}
       </div>
 
     </div>

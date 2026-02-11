@@ -1,10 +1,12 @@
 import { ACCENT, TEXT, TEXT_DIM, TEXT_MID, SURFACE } from '../../constants';
 import Icon from '../Icon';
 
+const PALETTE = ["#3b82f6","#6366f1","#8b5cf6","#a855f7","#ec4899","#f97316","#f59e0b","#eab308","#4ade80","#10b981","#14b8a6","#06b6d4","#64748b","#ef4444"];
+
 export default function NodeInspector({
   node, connections, nodeMap, selected, selectedConn,
   connectMode, onSetEditingLabel, onToggleConnect, onUnlink, onDelete,
-  onSelectConn, onRemoveConn, pushUndo, nodes, allConnections, showToast,
+  onSelectConn, onRemoveConn, onNodeColorChange, pushUndo, nodes, allConnections, showToast,
 }) {
   const nodeConnections = connections.filter(c => c.from === selected || c.to === selected);
 
@@ -55,6 +57,21 @@ export default function NodeInspector({
           <svg width="15" height="15" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="currentColor" /></svg>
           Delete node
         </button>
+      </div>
+
+      {/* Color */}
+      <div style={{ marginTop: 14 }}>
+        <div style={{ fontSize: 9, fontWeight: 600, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>Color</div>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+          {PALETTE.map(c => (
+            <div key={c} onClick={() => onNodeColorChange(node.id, c)} style={{
+              width: 18, height: 18, borderRadius: "50%", background: c, cursor: "pointer",
+              border: node.color === c ? "2px solid white" : "2px solid transparent",
+              opacity: node.color === c ? 1 : 0.5,
+              transition: "all 0.15s",
+            }} />
+          ))}
+        </div>
       </div>
 
       {/* Links list */}

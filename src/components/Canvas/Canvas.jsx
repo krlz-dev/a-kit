@@ -1,4 +1,5 @@
 import { ACCENT, TEXT_DIM } from '../../constants';
+import { CANVAS_W, CANVAS_H } from '../../utils/uid';
 import ConnectionLayer from './ConnectionLayer';
 import CanvasNode from './CanvasNode';
 import AddMenu from './AddMenu';
@@ -8,34 +9,73 @@ export default function Canvas({
   canvasRef, nodes, connections, nodeMap,
   selected, selectedConn, dragging, connectMode, editingLabel,
   animating, speed, toast,
+  pan, zoom, isPanning, spaceHeld,
   addMenuOpen, onToggleAddMenu, onAddNode,
-  onCanvasClick, onNodePointerDown, onNodeDoubleClick,
-  onLabelChange, onEditDone, onSelectConn,
+  onCanvasClick, onCanvasPointerDown,
+  onNodePointerDown, onNodeDoubleClick,
+  onLabelChange, onEditDone, onSelectConn, onResizeStart,
 }) {
   return (
     <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
-      <div ref={canvasRef} onClick={onCanvasClick} style={{ width: "100%", height: "100%", position: "relative", touchAction: "none" }}>
+      <div
+        ref={canvasRef}
+        onClick={onCanvasClick}
+        onPointerDown={onCanvasPointerDown}
+        style={{
+          width: "100%", height: "100%",
+          position: "relative",
+          touchAction: "none",
+          background: "#000",
+          cursor: isPanning ? "grabbing" : spaceHeld ? "grab" : "default",
+        }}
+      >
+        {/* Pannable canvas */}
+        <div data-canvas-content style={{
+          position: "absolute",
+          width: CANVAS_W, height: CANVAS_H,
+          transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+          transformOrigin: "0 0",
+          willChange: "transform",
+        }}>
+          {/* Canvas background */}
+          <div style={{ position: "absolute", inset: 0, background: "#141414", borderRadius: 12 }} />
 
-        {/* Dot grid */}
-        <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}>
-          <defs>
-            <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
-              <circle cx="12" cy="12" r="0.7" fill="rgba(200,230,0,0.045)" />
-            </pattern>
-            <radialGradient id="glw" cx="50%" cy="40%">
-              <stop offset="0%" stopColor="rgba(200,230,0,0.025)" />
-              <stop offset="100%" stopColor="transparent" />
-            </radialGradient>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#dots)" />
-          <rect width="100%" height="100%" fill="url(#glw)" />
-        </svg>
+          {/* Dot grid */}
+          <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}>
+            <defs>
+              <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
+                <circle cx="12" cy="12" r="0.7" fill="rgba(200,230,0,0.045)" />
+              </pattern>
+              <radialGradient id="glw" cx="50%" cy="40%">
+                <stop offset="0%" stopColor="rgba(200,230,0,0.025)" />
+                <stop offset="100%" stopColor="transparent" />
+              </radialGradient>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#dots)" />
+            <rect width="100%" height="100%" fill="url(#glw)" />
+          </svg>
 
-        <ConnectionLayer
-          connections={connections} nodeMap={nodeMap}
-          selectedConn={selectedConn} onSelectConn={onSelectConn}
-          animating={animating} speed={speed}
-        />
+          <ConnectionLayer
+            connections={connections} nodeMap={nodeMap}
+            selectedConn={selectedConn} onSelectConn={onSelectConn}
+            animating={animating} speed={speed}
+          />
+
+          {/* Nodes */}
+          {nodes.map(node => (
+            <CanvasNode
+              key={node.id} node={node}
+              selected={selected} dragging={dragging}
+              connectMode={connectMode} editingLabel={editingLabel}
+              onPointerDown={(e) => onNodePointerDown(e, node)}
+              onDoubleClick={(e) => onNodeDoubleClick(e, node.id)}
+              onLabelChange={onLabelChange} onEditDone={onEditDone}
+              onResizeStart={(e) => onResizeStart(e, node)}
+            />
+          ))}
+        </div>
+
+        {/* Fixed overlays (don't pan) */}
 
         {/* Empty state */}
         {nodes.length === 0 && (
@@ -52,18 +92,6 @@ export default function Canvas({
             <div style={{ fontSize: 12, color: TEXT_DIM }}>Click the + button or load a template</div>
           </div>
         )}
-
-        {/* Nodes */}
-        {nodes.map(node => (
-          <CanvasNode
-            key={node.id} node={node}
-            selected={selected} dragging={dragging}
-            connectMode={connectMode} editingLabel={editingLabel}
-            onPointerDown={(e) => onNodePointerDown(e, node)}
-            onDoubleClick={(e) => onNodeDoubleClick(e, node.id)}
-            onLabelChange={onLabelChange} onEditDone={onEditDone}
-          />
-        ))}
 
         {/* Connect mode banner */}
         {connectMode && nodeMap[connectMode] && (
