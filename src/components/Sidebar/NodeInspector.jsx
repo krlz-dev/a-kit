@@ -22,7 +22,7 @@ export default function NodeInspector({
         </div>
         <div style={{ minWidth: 0 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: TEXT, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{node.label}</div>
-          <div style={{ fontSize: 10, color: TEXT_DIM, fontFamily: "'JetBrains Mono', monospace" }}>{node.type}</div>
+          <div style={{ fontSize: 10, color: TEXT_DIM, fontFamily: "'IBM Plex Mono', monospace" }}>{node.type}</div>
         </div>
       </div>
 
@@ -32,10 +32,21 @@ export default function NodeInspector({
           <svg width="15" height="15" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" fill="currentColor" /></svg>
           Rename
         </button>
-        <button className={`sidebar-btn ${connectMode === selected ? "active" : ""}`} onClick={onToggleConnect}>
-          <svg width="15" height="15" viewBox="0 0 24 24"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z" fill="currentColor" /></svg>
-          {connectMode === selected ? "Cancel linking…" : "Link to…"}
-        </button>
+        {connectMode === selected ? (
+          <button className="sidebar-btn active" onClick={() => onToggleConnect()}>
+            <svg width="15" height="15" viewBox="0 0 24 24"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z" fill="currentColor" /></svg>
+            Cancel linking…
+          </button>
+        ) : (
+          <div style={{ display: "flex", gap: 3 }}>
+            <button className="sidebar-btn" style={{ flex: 1 }} onClick={() => onToggleConnect(false)}>
+              <span style={{ fontSize: 14 }}>→</span> Link
+            </button>
+            <button className="sidebar-btn" style={{ flex: 1 }} onClick={() => onToggleConnect(true)}>
+              <span style={{ fontSize: 14 }}>↔</span> Link
+            </button>
+          </div>
+        )}
         <button className="sidebar-btn" onClick={onUnlink} disabled={nodeConnections.length === 0}>
           <svg width="15" height="15" viewBox="0 0 24 24"><path d="M17 7h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5zM7 7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1S5.29 8.9 7 8.9h4V7H7zM2 4l1.5-1.5L21 20l-1.5 1.5L2 4z" fill="currentColor" /></svg>
           Unlink all ({nodeConnections.length})
@@ -63,7 +74,7 @@ export default function NodeInspector({
                 onClick={() => onSelectConn(conn.id === selectedConn ? null : conn.id)}
               >
                 <div style={{ width: 8, height: 8, borderRadius: "50%", background: conn.color, flexShrink: 0 }} />
-                <span style={{ fontSize: 11, color: TEXT_MID, flex: 1 }}>{conn.from === selected ? "→" : "←"} {other.label}</span>
+                <span style={{ fontSize: 11, color: TEXT_MID, flex: 1 }}>{conn.bidir ? "↔" : conn.from === selected ? "→" : "←"} {other.label}{conn.label && <span style={{ color: TEXT_DIM, fontSize: 10 }}> · {conn.label}</span>}</span>
                 <span onClick={(e) => { e.stopPropagation(); onRemoveConn(conn.id); }}
                   style={{ fontSize: 15, color: TEXT_DIM, cursor: "pointer", lineHeight: 1, padding: "0 2px" }}
                   title="Remove link">×</span>

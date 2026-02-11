@@ -1,8 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body, #root { height: 100%; }
-body { font-family: 'DM Sans', 'SF Pro Display', -apple-system, sans-serif; }
+body { font-family: 'IBM Plex Mono', monospace; }
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(6px); }
@@ -74,3 +74,16 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .conn-color-dot:hover { transform: scale(1.2); }
 .conn-color-dot.active { border-color: white; transform: scale(1.15); }
+
+.dir-toggle {
+  width: 32px; height: 24px; border-radius: 6px;
+  background: transparent; border: 1px solid rgba(200,230,0,0.1);
+  color: #7a8e7a; font-size: 14px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s; font-family: inherit;
+}
+.dir-toggle:hover { background: rgba(200,230,0,0.05); color: #d8e4d8; }
+.dir-toggle.active {
+  background: rgba(200,230,0,0.08); color: #c8e600;
+  border-color: rgba(200,230,0,0.15);
+}

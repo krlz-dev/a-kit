@@ -7,7 +7,11 @@ export const TEMPLATES = [
       { type: "server", label: "App Server", color: "#3b82f6", x: 340, y: 340 },
       { type: "database", label: "Database", color: "#f97316", x: 340, y: 480 },
     ],
-    conns: [[0, 1, "#c8e600"], [1, 2, "#06b6d4"], [2, 3, "#f59e0b"]],
+    conns: [
+      [0, 1, "#c8e600", false, "HTTP"],
+      [1, 2, "#06b6d4", false, "REST"],
+      [2, 3, "#f59e0b", false, "queries"],
+    ],
   },
   {
     name: "Microservices", desc: "Gateway + services + queue",
@@ -20,7 +24,15 @@ export const TEMPLATES = [
       { type: "database", label: "Users DB", color: "#f97316", x: 140, y: 560 },
       { type: "database", label: "Orders DB", color: "#f97316", x: 500, y: 560 },
     ],
-    conns: [[0, 1, "#c8e600"], [1, 2, "#06b6d4"], [1, 3, "#06b6d4"], [2, 4, "#ec4899"], [3, 4, "#ec4899"], [2, 5, "#f59e0b"], [3, 6, "#f59e0b"]],
+    conns: [
+      [0, 1, "#c8e600", false, "requests"],
+      [1, 2, "#06b6d4", false, "route"],
+      [1, 3, "#06b6d4", false, "route"],
+      [2, 4, "#ec4899", false, "publish"],
+      [3, 4, "#ec4899", false, "publish"],
+      [2, 5, "#f59e0b", false, "read/write"],
+      [3, 6, "#f59e0b", false, "read/write"],
+    ],
   },
   {
     name: "Event-Driven", desc: "Producers → Queue → Consumers",
@@ -32,7 +44,14 @@ export const TEMPLATES = [
       { type: "monitor", label: "Analytics", color: "#14b8a6", x: 480, y: 380 },
       { type: "database", label: "Data Store", color: "#f97316", x: 320, y: 520 },
     ],
-    conns: [[0, 2, "#8b5cf6"], [1, 2, "#10b981"], [2, 3, "#ec4899"], [2, 4, "#ec4899"], [3, 5, "#f59e0b"], [4, 5, "#14b8a6"]],
+    conns: [
+      [0, 2, "#8b5cf6", false, "emit events"],
+      [1, 2, "#10b981", false, "emit events"],
+      [2, 3, "#ec4899", false, "consume"],
+      [2, 4, "#ec4899", false, "stream"],
+      [3, 5, "#f59e0b", false, "persist"],
+      [4, 5, "#14b8a6", false, "aggregate"],
+    ],
   },
   {
     name: "Auth Flow", desc: "Login → Auth → Cache → DB",
@@ -43,7 +62,28 @@ export const TEMPLATES = [
       { type: "database", label: "User Store", color: "#f97316", x: 500, y: 340 },
       { type: "server", label: "App Server", color: "#3b82f6", x: 320, y: 480 },
     ],
-    conns: [[0, 1, "#c8e600"], [1, 2, "#eab308"], [1, 3, "#f59e0b"], [1, 4, "#06b6d4"], [2, 4, "#eab308"]],
+    conns: [
+      [0, 1, "#c8e600", false, "credentials"],
+      [1, 2, "#eab308", false, "store session"],
+      [1, 3, "#f59e0b", false, "verify user"],
+      [1, 4, "#06b6d4", false, "JWT"],
+      [2, 4, "#eab308", false, "session lookup"],
+    ],
+  },
+  {
+    name: "Auth0 Web App", desc: "App ↔ Auth0 → Server token flow",
+    nodes: [
+      { type: "web", label: "Web App", color: "#10b981", x: 160, y: 80 },
+      { type: "auth", label: "Auth0", color: "#f59e0b", x: 500, y: 80 },
+      { type: "server", label: "API Server", color: "#3b82f6", x: 160, y: 340 },
+      { type: "database", label: "Database", color: "#f97316", x: 160, y: 520 },
+    ],
+    conns: [
+      [0, 1, "#f59e0b", true, "auth-token"],
+      [0, 2, "#c8e600", false, "request + token"],
+      [2, 1, "#06b6d4", false, "validate token"],
+      [2, 3, "#f97316", false, ""],
+    ],
   },
   {
     name: "CI/CD Pipeline", desc: "Code → Build → Deploy → Monitor",
@@ -54,6 +94,11 @@ export const TEMPLATES = [
       { type: "cloud", label: "Deploy", color: "#64748b", x: 320, y: 430 },
       { type: "monitor", label: "Monitoring", color: "#14b8a6", x: 320, y: 560 },
     ],
-    conns: [[0, 1, "#10b981"], [1, 2, "#a855f7"], [2, 3, "#3b82f6"], [3, 4, "#06b6d4"]],
+    conns: [
+      [0, 1, "#10b981", false, "push"],
+      [1, 2, "#a855f7", false, "artifacts"],
+      [2, 3, "#3b82f6", false, "promote"],
+      [3, 4, "#06b6d4", false, "metrics"],
+    ],
   },
 ];

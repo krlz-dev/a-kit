@@ -8,6 +8,7 @@ export default function CanvasNode({
   const isSel = selected === node.id;
   const isTarget = connectMode && connectMode !== node.id;
   const isSrc = connectMode === node.id;
+  const isGroup = node.type === 'group';
 
   return (
     <div
@@ -16,10 +17,14 @@ export default function CanvasNode({
       onDoubleClick={onDoubleClick}
       style={{
         position: "absolute", left: node.x, top: node.y, width: node.w, height: node.h,
-        zIndex: isSel || dragging === node.id ? 15 : 10,
-        background: CARD_BG, backdropFilter: "blur(12px)",
-        border: `1.5px solid ${isSrc ? ACCENT : isTarget ? `${ACCENT}44` : isSel ? `${node.color}70` : CARD_BORDER}`,
-        borderRadius: 16, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 5,
+        zIndex: isGroup ? 5 : isSel || dragging === node.id ? 15 : 10,
+        background: isGroup ? "rgba(16,22,16,0.45)" : CARD_BG,
+        backdropFilter: "blur(12px)",
+        border: isGroup
+          ? `2px dashed ${isSrc ? ACCENT : isTarget ? `${ACCENT}44` : isSel ? `${node.color}70` : `${node.color}30`}`
+          : `1.5px solid ${isSrc ? ACCENT : isTarget ? `${ACCENT}44` : isSel ? `${node.color}70` : CARD_BORDER}`,
+        borderRadius: isGroup ? 20 : 16,
+        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 5,
         cursor: dragging === node.id ? "grabbing" : isTarget ? "pointer" : "grab",
         transition: dragging === node.id ? "none" : "all 0.2s ease",
         boxShadow: isSel
@@ -29,9 +34,11 @@ export default function CanvasNode({
         touchAction: "none",
       }}
     >
-      <div style={{ position: "absolute", top: 0, left: 20, right: 20, height: 2, background: node.color, opacity: 0.25, borderRadius: "0 0 2px 2px" }} />
+      {!isGroup && (
+        <div style={{ position: "absolute", top: 0, left: 20, right: 20, height: 2, background: node.color, opacity: 0.25, borderRadius: "0 0 2px 2px" }} />
+      )}
 
-      <Icon path={node.icon} color={node.color} size={22} />
+      <Icon path={node.icon} color={node.color} size={isGroup ? 28 : 22} />
 
       {editingLabel === node.id ? (
         <input
@@ -44,7 +51,7 @@ export default function CanvasNode({
           style={{
             width: node.w - 16, background: "rgba(0,0,0,0.5)", border: `1px solid ${ACCENT}40`,
             borderRadius: 6, color: TEXT, fontSize: 11, fontWeight: 600, textAlign: "center",
-            padding: "3px 4px", outline: "none", fontFamily: "'DM Sans', sans-serif",
+            padding: "3px 4px", outline: "none", fontFamily: "'IBM Plex Mono', monospace",
           }}
         />
       ) : (

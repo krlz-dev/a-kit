@@ -8,7 +8,7 @@ export default function TemplatesTab({ onLoadTemplate }) {
       {TEMPLATES.map((tpl, i) => (
         <div key={i} className="template-card" onClick={() => onLoadTemplate(tpl)}>
           <div style={{ fontSize: 12.5, fontWeight: 600, color: TEXT, marginBottom: 2 }}>{tpl.name}</div>
-          <div style={{ fontSize: 10, color: TEXT_DIM, fontFamily: "'JetBrains Mono', monospace" }}>{tpl.desc}</div>
+          <div style={{ fontSize: 10, color: TEXT_DIM, fontFamily: "'IBM Plex Mono', monospace" }}>{tpl.desc}</div>
         </div>
       ))}
     </div>
