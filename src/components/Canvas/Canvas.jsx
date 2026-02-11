@@ -9,7 +9,7 @@ export default function Canvas({
   canvasRef, nodes, connections, nodeMap,
   selected, selectedConn, dragging, connectMode, editingLabel,
   animating, speed, toast,
-  pan, zoom, isPanning, spaceHeld,
+  pan, zoom, isPanning, spaceHeld, isTransforming,
   addMenuOpen, onToggleAddMenu, onAddNode,
   onCanvasClick, onCanvasPointerDown,
   onNodePointerDown, onNodeDoubleClick,
@@ -35,7 +35,7 @@ export default function Canvas({
           width: CANVAS_W, height: CANVAS_H,
           transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
           transformOrigin: "0 0",
-          willChange: "transform",
+          willChange: isTransforming ? "transform" : "auto",
         }}>
           {/* Canvas background */}
           <div style={{ position: "absolute", inset: 0, background: "#141414", borderRadius: 12 }} />

@@ -31,6 +31,7 @@ export default function App() {
   const [zoom, setZoom] = useState(1);
   const [isPanning, setIsPanning] = useState(false);
   const [spaceHeld, setSpaceHeld] = useState(false);
+  const [isTransforming, setIsTransforming] = useState(false);
   const canvasRef = useRef(null);
   const dragOff = useRef({ x: 0, y: 0 });
   const resizing = useRef(null);
@@ -40,8 +41,17 @@ export default function App() {
   const panStart = useRef(null);
   const spaceHeldRef = useRef(false);
   const wasPanning = useRef(false);
+  const transformTimer = useRef(null);
 
   const { toast, showToast } = useToast();
+
+  // Mark canvas as actively transforming (enables willChange for smooth interaction),
+  // then clear after idle so the browser re-rasterizes at current zoom for crisp rendering.
+  const markTransforming = useCallback(() => {
+    setIsTransforming(true);
+    clearTimeout(transformTimer.current);
+    transformTimer.current = setTimeout(() => setIsTransforming(false), 150);
+  }, []);
 
   const resetSelection = useCallback(() => {
     setSelected(null);
@@ -94,6 +104,7 @@ export default function App() {
   // Wheel zoom (toward cursor)
   const onWheel = useCallback((e) => {
     e.preventDefault();
+    markTransforming();
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
     const mouseX = e.clientX - rect.left;
@@ -108,7 +119,7 @@ export default function App() {
     panRef.current = { x: newPanX, y: newPanY };
     setZoom(newZoom);
     setPan({ x: newPanX, y: newPanY });
-  }, []);
+  }, [markTransforming]);
 
   useEffect(() => {
     const el = canvasRef.current;
@@ -237,6 +248,7 @@ export default function App() {
   const onPtrMove = useCallback((e) => {
     // Pan
     if (panStart.current) {
+      markTransforming();
       const p = panStart.current;
       const newX = p.startPanX + (e.clientX - p.startMouseX);
       const newY = p.startPanY + (e.clientY - p.startMouseY);
@@ -276,7 +288,7 @@ export default function App() {
         return n;
       });
     });
-  }, [dragging]);
+  }, [dragging, markTransforming]);
 
   const onPtrUp = useCallback(() => {
     if (panStart.current) {
@@ -471,7 +483,7 @@ export default function App() {
         selected={selected} selectedConn={selectedConn} dragging={dragging}
         connectMode={connectMode} editingLabel={editingLabel}
         animating={animating} speed={speed} toast={toast}
-        pan={pan} zoom={zoom} isPanning={isPanning} spaceHeld={spaceHeld}
+        pan={pan} zoom={zoom} isPanning={isPanning} spaceHeld={spaceHeld} isTransforming={isTransforming}
         addMenuOpen={addMenuOpen} onToggleAddMenu={setAddMenuOpen} onAddNode={addNode}
         onCanvasClick={onCanvasClick}
         onCanvasPointerDown={onCanvasPointerDown}
