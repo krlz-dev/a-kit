@@ -1,0 +1,76 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body, #root { height: 100%; }
+body { font-family: 'DM Sans', 'SF Pro Display', -apple-system, sans-serif; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes toastSlide {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 12px rgba(200,230,0,0.15); }
+  50% { box-shadow: 0 0 28px rgba(200,230,0,0.35); }
+}
+@keyframes dotPulse {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.5); opacity: 1; }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.sidebar-btn {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 9px 14px; background: transparent;
+  border: 1px solid transparent; border-radius: 10px;
+  color: #7a8e7a; font-size: 12.5px; font-weight: 500;
+  cursor: pointer; transition: all 0.18s; font-family: inherit;
+}
+.sidebar-btn:hover {
+  background: rgba(200,230,0,0.05); color: #d8e4d8;
+  border-color: rgba(200,230,0,0.08);
+}
+.sidebar-btn.active {
+  background: rgba(200,230,0,0.08); color: #c8e600;
+  border-color: rgba(200,230,0,0.15);
+}
+.sidebar-btn.danger:hover {
+  background: rgba(248,113,113,0.08); color: #f87171;
+  border-color: rgba(248,113,113,0.15);
+}
+.sidebar-btn:disabled { opacity: 0.25; pointer-events: none; }
+
+input[type="range"] {
+  -webkit-appearance: none; height: 3px;
+  background: #1c241c; border-radius: 4px; outline: none; width: 100%;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 14px; height: 14px;
+  border-radius: 50%; background: #c8e600; cursor: pointer;
+  border: 2px solid #080c08;
+}
+
+.template-card {
+  padding: 10px 14px; border-radius: 10px; cursor: pointer;
+  border: 1px solid transparent; transition: all 0.18s;
+}
+.template-card:hover {
+  background: rgba(200,230,0,0.04); border-color: rgba(200,230,0,0.1);
+}
+
+.conn-color-dot {
+  width: 18px; height: 18px; border-radius: 50%;
+  cursor: pointer; border: 2px solid transparent; transition: all 0.15s;
+}
+.conn-color-dot:hover { transform: scale(1.2); }
+.conn-color-dot.active { border-color: white; transform: scale(1.15); }

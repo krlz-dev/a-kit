@@ -1,0 +1,11 @@
+export const ACCENT = "#c8e600";
+export const ACCENT_DIM = "#a0b800";
+export const BG = "#080c08";
+export const SIDEBAR_BG = "rgba(10,14,10,0.96)";
+export const CARD_BG = "rgba(16,22,16,0.92)";
+export const CARD_BORDER = "rgba(200,230,0,0.08)";
+export const TEXT = "#d8e4d8";
+export const TEXT_DIM = "#4a5c4a";
+export const TEXT_MID = "#7a8e7a";
+export const SURFACE = "rgba(24,32,24,0.7)";
+export const DIVIDER = "rgba(200,230,0,0.06)";
