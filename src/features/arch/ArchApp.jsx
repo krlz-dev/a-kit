@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { BG, TEXT, ACCENT, CONN_COLORS, COMPONENTS } from './constants';
+import { BG, TEXT, ACCENT, CONN_COLORS } from './constants';
 import { uid, cuid, NODE_W, NODE_H, GROUP_W, GROUP_H, CANVAS_W, CANVAS_H } from './utils/uid';
 import { useToast } from '../../shared/hooks/useToast';
 import { useUndo } from '../../shared/hooks/useUndo';
@@ -24,7 +24,6 @@ export default function ArchApp() {
   const [connColorIdx, setConnColorIdx] = useState(0);
   const [bidir, setBidir] = useState(false);
   const [editingLabel, setEditingLabel] = useState(null);
-  const [addMenuOpen, setAddMenuOpen] = useState(false);
   const [savedDesigns, setSavedDesigns] = useState(() => getSavedDesigns());
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -137,7 +136,6 @@ export default function ArchApp() {
       y: cy + Math.floor(offset / 120) * 90,
       w, h,
     }]);
-    setAddMenuOpen(false);
     showToast(`Added ${item.label}`);
   }, [nodes, connections, pushUndo, showToast]);
 
@@ -294,7 +292,7 @@ export default function ArchApp() {
       wasPanning.current = false;
       return;
     }
-    if (!e.target.closest("[data-node]") && !e.target.closest("[data-add-menu]")) {
+    if (!e.target.closest("[data-node]")) {
       if (connectMode) { setConnectMode(null); showToast("Cancelled"); }
       setSelected(null);
       setSelectedConn(null);
@@ -305,7 +303,6 @@ export default function ArchApp() {
     setConnectMode(null);
     setSelected(null);
     setSelectedConn(null);
-    setAddMenuOpen(false);
   }, []);
 
   useKeyboardShortcuts({ deleteSelected, editingLabel, undo, redo, clearSelection });
@@ -437,6 +434,7 @@ export default function ArchApp() {
         onExportSavedDesign={onExportSavedDesign}
         onImportDesign={onImportDesign}
         onNodeColorChange={onNodeColorChange}
+        onAddNode={addNode}
         pushUndo={pushUndo} showToast={showToast}
       />
       <Canvas
@@ -445,7 +443,6 @@ export default function ArchApp() {
         connectMode={connectMode} editingLabel={editingLabel}
         animating={animating} speed={speed} toast={toast}
         pan={pan} zoom={zoom} isPanning={isPanning} spaceHeld={spaceHeld} isTransforming={isTransforming}
-        addMenuOpen={addMenuOpen} onToggleAddMenu={setAddMenuOpen} onAddNode={addNode}
         onCanvasClick={onCanvasClick}
         onCanvasPointerDown={onCanvasPointerDown}
         onNodePointerDown={onNodePointerDown}

@@ -16,7 +16,7 @@ export default function Sidebar({
   onUndo, onRedo, onClearAll, onLoadTemplate,
   onSaveDesign, onLoadDesign, onDeleteDesign,
   onExportDesign, onExportSavedDesign, onImportDesign,
-  onNodeColorChange,
+  onNodeColorChange, onAddNode,
   pushUndo, showToast,
 }) {
   const [sidebarTab, setSidebarTab] = useState("tools");
@@ -79,6 +79,7 @@ export default function Sidebar({
             onExportDesign={onExportDesign}
             onImportDesign={onImportDesign}
             onNodeColorChange={onNodeColorChange}
+            onAddNode={onAddNode}
             pushUndo={pushUndo} showToast={showToast}
           />
         )}
@@ -102,7 +103,7 @@ export default function Sidebar({
         ) : selected ? (
           "Press Delete to remove \u00B7 Double-click to rename"
         ) : (
-          "Click a node to select \u00B7 Click + to add"
+          "Click a node to select \u00B7 Add components above"
         )}
       </div>
     </div>

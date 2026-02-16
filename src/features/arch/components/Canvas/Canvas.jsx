@@ -2,7 +2,6 @@ import { ACCENT, TEXT_DIM } from '../../constants';
 import { CANVAS_W, CANVAS_H } from '../../utils/uid';
 import ConnectionLayer from './ConnectionLayer';
 import CanvasNode from './CanvasNode';
-import AddMenu from './AddMenu';
 import Toast from '../../../../shared/components/Toast';
 
 export default function Canvas({
@@ -10,7 +9,6 @@ export default function Canvas({
   selected, selectedConn, dragging, connectMode, editingLabel,
   animating, speed, toast,
   pan, zoom, isPanning, spaceHeld, isTransforming,
-  addMenuOpen, onToggleAddMenu, onAddNode,
   onCanvasClick, onCanvasPointerDown,
   onNodePointerDown, onNodeDoubleClick,
   onLabelChange, onEditDone, onSelectConn, onResizeStart,
@@ -89,7 +87,7 @@ export default function Canvas({
               </svg>
             </div>
             <div style={{ fontSize: 18, fontWeight: 700, color: `${ACCENT}88`, letterSpacing: "-0.01em" }}>Add a node to start</div>
-            <div style={{ fontSize: 12, color: TEXT_DIM }}>Click the + button or load a template</div>
+            <div style={{ fontSize: 12, color: TEXT_DIM }}>Pick a component from the sidebar or load a template</div>
           </div>
         )}
 
@@ -108,8 +106,6 @@ export default function Canvas({
         )}
 
         <Toast message={toast} />
-
-        <AddMenu open={addMenuOpen} onToggle={onToggleAddMenu} onAdd={onAddNode} />
       </div>
     </div>
   );

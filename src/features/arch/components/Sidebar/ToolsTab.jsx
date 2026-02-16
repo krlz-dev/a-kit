@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { ACCENT, BG, TEXT, TEXT_DIM, TEXT_MID, SURFACE, CONN_COLORS } from '../../constants';
+import { ACCENT, BG, TEXT, TEXT_DIM, TEXT_MID, SURFACE, CARD_BORDER, CONN_COLORS, COMPONENTS } from '../../constants';
 import { exportAsPNG, exportAsJPG, exportAsGIF, exportAsWebM } from '../../utils/exportCanvas';
+import Icon from '../../../../shared/components/Icon';
 import NodeInspector from './NodeInspector';
 import LinkInspector from './LinkInspector';
 
@@ -14,7 +15,7 @@ export default function ToolsTab({
   onToggleAnimating, onSetSpeed, onSetConnColorIdx,
   onUndo, onRedo, onClearAll,
   onSaveDesign, onExportDesign, onImportDesign,
-  onNodeColorChange,
+  onNodeColorChange, onAddNode,
   pushUndo, showToast,
 }) {
   const [exporting, setExporting] = useState(null);
@@ -54,6 +55,24 @@ export default function ToolsTab({
 
   return (
     <div>
+      {/* Add Component */}
+      <div style={{ fontSize: 9, fontWeight: 600, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>Add Component</div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 4, marginBottom: 16 }}>
+        {COMPONENTS.map((item) => (
+          <div key={item.type} onClick={() => onAddNode(item)} style={{
+            display: "flex", flexDirection: "column", alignItems: "center", gap: 5, padding: "10px 4px 8px",
+            borderRadius: 10, border: `1px solid ${CARD_BORDER}`, background: SURFACE,
+            cursor: "pointer", transition: "all 0.15s",
+          }}
+            onPointerEnter={(e) => { e.currentTarget.style.borderColor = `${item.color}40`; e.currentTarget.style.background = `${item.color}0a`; e.currentTarget.style.transform = "translateY(-1px)"; }}
+            onPointerLeave={(e) => { e.currentTarget.style.borderColor = CARD_BORDER; e.currentTarget.style.background = SURFACE; e.currentTarget.style.transform = "translateY(0)"; }}
+          >
+            <Icon path={item.icon} color={item.color} size={18} />
+            <span style={{ fontSize: 9, fontWeight: 600, color: TEXT_MID, textAlign: "center", lineHeight: 1.15 }}>{item.label}</span>
+          </div>
+        ))}
+      </div>
+
       <div style={{ fontSize: 9, fontWeight: 600, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>Canvas</div>
 
       {/* Stats */}
