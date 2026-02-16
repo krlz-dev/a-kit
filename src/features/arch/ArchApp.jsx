@@ -200,7 +200,7 @@ export default function ArchApp() {
     } else {
       groupChildren.current = [];
     }
-  }, [connectMode, connections, connColorIdx, nodes, pushUndo, showToast]);
+  }, [connectMode, connections, connColorIdx, bidir, nodes, pushUndo, showToast]);
 
   const onCanvasPointerDown = useCallback((e) => {
     if (e.button === 1 || (e.button === 0 && spaceHeldRef.current)) {
@@ -305,7 +305,23 @@ export default function ArchApp() {
     setSelectedConn(null);
   }, []);
 
-  useKeyboardShortcuts({ deleteSelected, editingLabel, undo, redo, clearSelection });
+  const toggleLinkMode = useCallback(() => {
+    if (!selected) return;
+    if (connectMode === selected) {
+      // Already in link mode — toggle bidir
+      setBidir(b => {
+        showToast(b ? "\u2192 Uni-directional link" : "\u2194 Bi-directional link");
+        return !b;
+      });
+    } else {
+      // Enter link mode (uni-directional)
+      setBidir(false);
+      setConnectMode(selected);
+      showToast("\u2192 Link mode — click a target node");
+    }
+  }, [selected, connectMode, showToast]);
+
+  useKeyboardShortcuts({ deleteSelected, editingLabel, undo, redo, clearSelection, toggleLinkMode });
 
   const loadDesign = useCallback((design, opts) => {
     pushUndo(nodes, connections);
@@ -435,6 +451,7 @@ export default function ArchApp() {
         onImportDesign={onImportDesign}
         onNodeColorChange={onNodeColorChange}
         onAddNode={addNode}
+        onDeselectAll={resetSelection}
         pushUndo={pushUndo} showToast={showToast}
       />
       <Canvas

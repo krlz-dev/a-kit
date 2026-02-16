@@ -1,9 +1,14 @@
-import { useState } from 'react';
-import { ACCENT, BG, TEXT, TEXT_DIM, TEXT_MID, SURFACE, CARD_BORDER, CONN_COLORS, COMPONENTS } from '../../constants';
+import { useState, useMemo } from 'react';
+import { ACCENT, BG, TEXT, TEXT_DIM, TEXT_MID, SURFACE, CARD_BORDER, CONN_COLORS, COMPONENTS, CLOUD_COMPONENTS, PROVIDERS } from '../../constants';
 import { exportAsPNG, exportAsJPG, exportAsGIF, exportAsWebM } from '../../utils/exportCanvas';
-import Icon from '../../../../shared/components/Icon';
+import NodeIcon from '../NodeIcon';
 import NodeInspector from './NodeInspector';
 import LinkInspector from './LinkInspector';
+
+const ALL_COMPONENTS = [
+  ...COMPONENTS.map(c => ({ ...c, provider: 'generic', category: 'Generic' })),
+  ...CLOUD_COMPONENTS,
+];
 
 export default function ToolsTab({
   nodes, connections, nodeMap,
@@ -15,10 +20,13 @@ export default function ToolsTab({
   onToggleAnimating, onSetSpeed, onSetConnColorIdx,
   onUndo, onRedo, onClearAll,
   onSaveDesign, onExportDesign, onImportDesign,
-  onNodeColorChange, onAddNode,
+  onNodeColorChange, onAddNode, onDeselectAll,
   pushUndo, showToast,
 }) {
   const [exporting, setExporting] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeProvider, setActiveProvider] = useState('all');
+  const [visibleCount, setVisibleCount] = useState(50);
 
   const doExport = async (type, fn) => {
     setExporting(type);
@@ -32,77 +40,189 @@ export default function ToolsTab({
     setExporting(null);
   };
 
+  const filtered = useMemo(() => {
+    let list = ALL_COMPONENTS;
+    if (activeProvider !== 'all') {
+      list = list.filter(c => c.provider === activeProvider);
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter(c =>
+        c.label.toLowerCase().includes(q) ||
+        c.type.toLowerCase().includes(q) ||
+        (c.category && c.category.toLowerCase().includes(q))
+      );
+    }
+    return list;
+  }, [searchQuery, activeProvider]);
+
+  const handleProviderChange = (id) => {
+    setActiveProvider(id);
+    setVisibleCount(50);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    setVisibleCount(50);
+  };
+
+  const breadcrumb = (label) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+      <span
+        onClick={onDeselectAll}
+        style={{
+          fontSize: 10, fontWeight: 600, color: ACCENT, cursor: 'pointer',
+          letterSpacing: '0.05em', transition: 'opacity 0.15s',
+        }}
+        onPointerEnter={(e) => { e.currentTarget.style.opacity = '0.7'; }}
+        onPointerLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
+      >Tools</span>
+      <span style={{ fontSize: 10, color: TEXT_DIM }}>/</span>
+      <span style={{ fontSize: 10, fontWeight: 600, color: TEXT_MID, letterSpacing: '0.05em' }}>{label}</span>
+    </div>
+  );
+
   if (selectedNode) {
     return (
-      <NodeInspector
-        node={selectedNode} connections={connections} nodeMap={nodeMap}
-        selected={selected} selectedConn={selectedConn}
-        connectMode={connectMode}
-        onSetEditingLabel={onSetEditingLabel} onToggleConnect={onToggleConnect}
-        onUnlink={onUnlinkSelected} onDelete={onDeleteSelected}
-        onSelectConn={onSelectConn} onRemoveConn={onRemoveConn}
-        onNodeColorChange={onNodeColorChange}
-        pushUndo={pushUndo} nodes={nodes} allConnections={connections} showToast={showToast}
-      />
+      <div>
+        {breadcrumb('Selected Node')}
+        <NodeInspector
+          node={selectedNode} connections={connections} nodeMap={nodeMap}
+          selected={selected} selectedConn={selectedConn}
+          connectMode={connectMode}
+          onSetEditingLabel={onSetEditingLabel} onToggleConnect={onToggleConnect}
+          onUnlink={onUnlinkSelected} onDelete={onDeleteSelected}
+          onSelectConn={onSelectConn} onRemoveConn={onRemoveConn}
+          onNodeColorChange={onNodeColorChange}
+          pushUndo={pushUndo} nodes={nodes} allConnections={connections} showToast={showToast}
+        />
+      </div>
     );
   }
 
   if (selectedConnObj) {
     return (
-      <LinkInspector conn={selectedConnObj} nodeMap={nodeMap} onDelete={onDeleteSelected} onToggleDirection={() => onToggleConnDirection(selectedConnObj.id)} onConnLabelChange={onConnLabelChange} />
+      <div>
+        {breadcrumb('Selected Link')}
+        <LinkInspector conn={selectedConnObj} nodeMap={nodeMap} onDelete={onDeleteSelected} onToggleDirection={() => onToggleConnDirection(selectedConnObj.id)} onConnLabelChange={onConnLabelChange} />
+      </div>
     );
   }
 
+  const visible = filtered.slice(0, visibleCount);
+  const hasMore = filtered.length > visibleCount;
+
   return (
     <div>
-      {/* Add Component */}
-      <div style={{ fontSize: 9, fontWeight: 600, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>Add Component</div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 4, marginBottom: 16 }}>
-        {COMPONENTS.map((item) => (
-          <div key={item.type} onClick={() => onAddNode(item)} style={{
-            display: "flex", flexDirection: "column", alignItems: "center", gap: 5, padding: "10px 4px 8px",
-            borderRadius: 10, border: `1px solid ${CARD_BORDER}`, background: SURFACE,
-            cursor: "pointer", transition: "all 0.15s",
+      {/* Search */}
+      <div style={{ marginBottom: 8 }}>
+        <input
+          type="text"
+          placeholder="Search components…"
+          value={searchQuery}
+          onChange={handleSearchChange}
+          style={{
+            width: '100%', padding: '8px 10px', borderRadius: 10,
+            border: `1px solid ${CARD_BORDER}`, background: SURFACE,
+            color: TEXT, fontSize: 12, outline: 'none',
+            fontFamily: "'IBM Plex Mono', monospace",
+            boxSizing: 'border-box',
           }}
-            onPointerEnter={(e) => { e.currentTarget.style.borderColor = `${item.color}40`; e.currentTarget.style.background = `${item.color}0a`; e.currentTarget.style.transform = "translateY(-1px)"; }}
-            onPointerLeave={(e) => { e.currentTarget.style.borderColor = CARD_BORDER; e.currentTarget.style.background = SURFACE; e.currentTarget.style.transform = "translateY(0)"; }}
-          >
-            <Icon path={item.icon} color={item.color} size={18} />
-            <span style={{ fontSize: 9, fontWeight: 600, color: TEXT_MID, textAlign: "center", lineHeight: 1.15 }}>{item.label}</span>
-          </div>
+        />
+      </div>
+
+      {/* Provider tabs */}
+      <div style={{
+        display: 'flex', gap: 4, marginBottom: 10, overflowX: 'auto',
+        paddingBottom: 4, scrollbarWidth: 'none',
+      }}>
+        <button
+          onClick={() => handleProviderChange('all')}
+          style={{
+            padding: '4px 10px', borderRadius: 20, border: 'none', cursor: 'pointer',
+            fontSize: 10, fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0,
+            background: activeProvider === 'all' ? ACCENT : SURFACE,
+            color: activeProvider === 'all' ? BG : TEXT_MID,
+            transition: 'all 0.15s',
+          }}
+        >All</button>
+        {PROVIDERS.map(p => (
+          <button
+            key={p.id}
+            onClick={() => handleProviderChange(p.id)}
+            style={{
+              padding: '4px 10px', borderRadius: 20, border: 'none', cursor: 'pointer',
+              fontSize: 10, fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0,
+              background: activeProvider === p.id ? p.color : SURFACE,
+              color: activeProvider === p.id ? '#fff' : TEXT_MID,
+              transition: 'all 0.15s',
+            }}
+          >{p.label}</button>
         ))}
       </div>
 
-      <div style={{ fontSize: 9, fontWeight: 600, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>Canvas</div>
+      {/* Component grid */}
+      <div className="component-grid-scroll" style={{ marginBottom: 6 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+          {visible.map((item) => (
+            <div key={item.type} className="icon-tile" onClick={() => onAddNode(item)}>
+              <NodeIcon icon={item.icon} iconUrl={item.iconUrl} color={item.color} size={26} />
+              <div className="icon-tooltip">
+                {item.label}
+                {item.category && item.category !== 'Generic' && (
+                  <span style={{ color: TEXT_DIM, fontWeight: 400 }}> · {item.category}</span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Result count + Show more */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <span style={{ fontSize: 10, color: TEXT_DIM }}>{filtered.length} components</span>
+        {hasMore && (
+          <button
+            onClick={() => setVisibleCount(v => v + 50)}
+            style={{
+              padding: '4px 10px', borderRadius: 8, border: `1px solid ${CARD_BORDER}`,
+              background: SURFACE, color: ACCENT, fontSize: 10, fontWeight: 600,
+              cursor: 'pointer',
+            }}
+          >Show more</button>
+        )}
+      </div>
+
+      <div style={{ fontSize: 9, fontWeight: 600, color: TEXT_DIM, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>Canvas</div>
 
       {/* Stats */}
-      <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-        <div style={{ flex: 1, padding: "10px 12px", background: SURFACE, borderRadius: 10, textAlign: "center" }}>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+        <div style={{ flex: 1, padding: '10px 12px', background: SURFACE, borderRadius: 10, textAlign: 'center' }}>
           <div style={{ fontSize: 18, fontWeight: 700, color: TEXT, fontFamily: "'IBM Plex Mono', monospace" }}>{nodes.length}</div>
           <div style={{ fontSize: 9, color: TEXT_DIM, marginTop: 2 }}>Nodes</div>
         </div>
-        <div style={{ flex: 1, padding: "10px 12px", background: SURFACE, borderRadius: 10, textAlign: "center" }}>
+        <div style={{ flex: 1, padding: '10px 12px', background: SURFACE, borderRadius: 10, textAlign: 'center' }}>
           <div style={{ fontSize: 18, fontWeight: 700, color: TEXT, fontFamily: "'IBM Plex Mono', monospace" }}>{connections.length}</div>
           <div style={{ fontSize: 9, color: TEXT_DIM, marginTop: 2 }}>Links</div>
         </div>
       </div>
 
       {/* Controls */}
-      <div style={{ fontSize: 9, fontWeight: 600, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>Controls</div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+      <div style={{ fontSize: 9, fontWeight: 600, color: TEXT_DIM, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>Controls</div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
         <button className="sidebar-btn" onClick={onToggleAnimating}>
           <svg width="15" height="15" viewBox="0 0 24 24"><path d={animating ? "M6 19h4V5H6v14zm8-14v14h4V5h-4z" : "M8 5v14l11-7z"} fill="currentColor" /></svg>
-          {animating ? "Pause animation" : "Play animation"}
+          {animating ? 'Pause animation' : 'Play animation'}
         </button>
         <button className="sidebar-btn" onClick={onUndo} disabled={undoStack.current.length === 0}>
           <svg width="15" height="15" viewBox="0 0 24 24"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z" fill="currentColor" /></svg>
           Undo
-          <span style={{ marginLeft: "auto", fontSize: 10, color: TEXT_DIM, fontFamily: "'IBM Plex Mono', monospace" }}>⌘Z</span>
+          <span style={{ marginLeft: 'auto', fontSize: 10, color: TEXT_DIM, fontFamily: "'IBM Plex Mono', monospace" }}>{'\u2318'}Z</span>
         </button>
         <button className="sidebar-btn" onClick={onRedo} disabled={redoStack.current.length === 0}>
           <svg width="15" height="15" viewBox="0 0 24 24"><path d="M18.4 10.6C16.55 8.99 14.15 8 11.5 8c-4.65 0-8.58 3.03-9.96 7.22L3.9 16c1.05-3.19 4.05-5.5 7.6-5.5 1.95 0 3.73.72 5.12 1.88L13 16h9V7l-3.6 3.6z" fill="currentColor" /></svg>
           Redo
-          <span style={{ marginLeft: "auto", fontSize: 10, color: TEXT_DIM, fontFamily: "'IBM Plex Mono', monospace" }}>⌘⇧Z</span>
+          <span style={{ marginLeft: 'auto', fontSize: 10, color: TEXT_DIM, fontFamily: "'IBM Plex Mono', monospace" }}>{'\u2318\u21e7'}Z</span>
         </button>
         <button className="sidebar-btn danger" onClick={onClearAll} disabled={nodes.length === 0}>
           <svg width="15" height="15" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="currentColor" /></svg>
@@ -112,12 +232,12 @@ export default function ToolsTab({
 
       {/* Speed */}
       <div style={{ marginTop: 16 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-          <span style={{ fontSize: 9, fontWeight: 600, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: "0.1em" }}>Speed</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <span style={{ fontSize: 9, fontWeight: 600, color: TEXT_DIM, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Speed</span>
           <span style={{ fontSize: 11, color: TEXT_MID, fontFamily: "'IBM Plex Mono', monospace" }}>{speed.toFixed(1)}s</span>
         </div>
         <input type="range" min="0.8" max="6" step="0.1" value={speed} onChange={e => onSetSpeed(parseFloat(e.target.value))} />
-        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
           <span style={{ fontSize: 9, color: TEXT_DIM }}>Fast</span>
           <span style={{ fontSize: 9, color: TEXT_DIM }}>Slow</span>
         </div>
@@ -125,10 +245,10 @@ export default function ToolsTab({
 
       {/* Link color */}
       <div style={{ marginTop: 16 }}>
-        <div style={{ fontSize: 9, fontWeight: 600, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>Link Color</div>
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+        <div style={{ fontSize: 9, fontWeight: 600, color: TEXT_DIM, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>Link Color</div>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
           {CONN_COLORS.map((c, i) => (
-            <div key={c} className={`conn-color-dot ${connColorIdx === i ? "active" : ""}`}
+            <div key={c} className={`conn-color-dot ${connColorIdx === i ? 'active' : ''}`}
               style={{ background: c, opacity: connColorIdx === i ? 1 : 0.4 }}
               onClick={() => onSetConnColorIdx(i)} />
           ))}
@@ -137,9 +257,9 @@ export default function ToolsTab({
 
       {/* File */}
       <div style={{ marginTop: 16 }}>
-        <div style={{ fontSize: 9, fontWeight: 600, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>File</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-          <button className="sidebar-btn" onClick={() => { const n = prompt("Design name:"); if (n?.trim()) onSaveDesign(n.trim()); }} disabled={nodes.length === 0}>
+        <div style={{ fontSize: 9, fontWeight: 600, color: TEXT_DIM, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>File</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+          <button className="sidebar-btn" onClick={() => { const n = prompt('Design name:'); if (n?.trim()) onSaveDesign(n.trim()); }} disabled={nodes.length === 0}>
             <svg width="15" height="15" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z" fill="currentColor" /></svg>
             Save
           </button>
@@ -156,8 +276,8 @@ export default function ToolsTab({
 
       {/* Export As */}
       <div style={{ marginTop: 16 }}>
-        <div style={{ fontSize: 9, fontWeight: 600, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>Export As</div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 3 }}>
+        <div style={{ fontSize: 9, fontWeight: 600, color: TEXT_DIM, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>Export As</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3 }}>
           <button className="sidebar-btn" onClick={() => doExport('png', exportAsPNG)} disabled={nodes.length === 0 || exporting}>
             <svg width="15" height="15" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" fill="currentColor" /></svg>
             {exporting === 'png' ? 'Exporting…' : 'PNG'}
@@ -176,8 +296,8 @@ export default function ToolsTab({
           </button>
         </div>
         {exporting && (
-          <div style={{ marginTop: 6, fontSize: 10, color: ACCENT, display: "flex", alignItems: "center", gap: 6 }}>
-            <div style={{ width: 6, height: 6, borderRadius: "50%", background: ACCENT, animation: "dotPulse 1s ease infinite" }} />
+          <div style={{ marginTop: 6, fontSize: 10, color: ACCENT, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ width: 6, height: 6, borderRadius: '50%', background: ACCENT, animation: 'dotPulse 1s ease infinite' }} />
             {exporting === 'gif' || exporting === 'webm' ? 'Capturing frames…' : 'Processing…'}
           </div>
         )}

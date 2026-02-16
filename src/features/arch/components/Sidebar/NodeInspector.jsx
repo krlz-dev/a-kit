@@ -1,5 +1,5 @@
 import { ACCENT, TEXT, TEXT_DIM, TEXT_MID, SURFACE } from '../../constants';
-import Icon from '../../../../shared/components/Icon';
+import NodeIcon from '../NodeIcon';
 
 const PALETTE = ["#3b82f6","#6366f1","#8b5cf6","#a855f7","#ec4899","#f97316","#f59e0b","#eab308","#4ade80","#10b981","#14b8a6","#06b6d4","#64748b","#ef4444"];
 
@@ -12,15 +12,13 @@ export default function NodeInspector({
 
   return (
     <div style={{ animation: "fadeIn 0.2s ease-out" }}>
-      <div style={{ fontSize: 9, fontWeight: 600, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>Selected Node</div>
-
       {/* Node preview */}
       <div style={{
         display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", background: SURFACE,
         borderRadius: 12, border: `1px solid ${node.color}25`, marginBottom: 14,
       }}>
         <div style={{ width: 36, height: 36, borderRadius: 10, background: `${node.color}15`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          <Icon path={node.icon} color={node.color} size={20} />
+          <NodeIcon icon={node.icon} iconUrl={node.iconUrl} color={node.color} size={20} />
         </div>
         <div style={{ minWidth: 0 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: TEXT, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{node.label}</div>

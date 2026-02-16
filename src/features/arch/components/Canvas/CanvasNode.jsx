@@ -1,5 +1,5 @@
 import { ACCENT, CARD_BG, CARD_BORDER, TEXT, TEXT_MID } from '../../constants';
-import Icon from '../../../../shared/components/Icon';
+import NodeIcon from '../NodeIcon';
 
 export default function CanvasNode({
   node, selected, dragging, connectMode, editingLabel,
@@ -37,7 +37,7 @@ export default function CanvasNode({
           borderRadius: 8,
           maxWidth: node.w - 28,
         }}>
-          <Icon path={node.icon} color={node.color} size={14} />
+          <NodeIcon icon={node.icon} iconUrl={node.iconUrl} color={node.color} size={14} />
           {editingLabel === node.id ? (
             <input
               autoFocus
@@ -94,11 +94,12 @@ export default function CanvasNode({
       onPointerDown={onPointerDown}
       onDoubleClick={onDoubleClick}
       style={{
-        position: "absolute", left: node.x, top: node.y, width: node.w, height: node.h,
+        position: "absolute", left: node.x, top: node.y, width: node.w, minHeight: node.h,
         zIndex: isSel || dragging === node.id ? 15 : 10,
         background: CARD_BG, backdropFilter: "blur(12px)",
         border: `1.5px solid ${isSrc ? ACCENT : isTarget ? `${ACCENT}44` : isSel ? `${node.color}70` : CARD_BORDER}`,
         borderRadius: 16, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 5,
+        padding: "10px 6px",
         cursor: dragging === node.id ? "grabbing" : isTarget ? "pointer" : "grab",
         transition: dragging === node.id ? "none" : "all 0.2s ease",
         boxShadow: isSel
@@ -110,7 +111,7 @@ export default function CanvasNode({
     >
       <div style={{ position: "absolute", top: 0, left: 20, right: 20, height: 2, background: node.color, opacity: 0.25, borderRadius: "0 0 2px 2px" }} />
 
-      <Icon path={node.icon} color={node.color} size={22} />
+      <NodeIcon icon={node.icon} iconUrl={node.iconUrl} color={node.color} size={22} />
 
       {editingLabel === node.id ? (
         <input
@@ -128,8 +129,8 @@ export default function CanvasNode({
         />
       ) : (
         <span style={{
-          fontSize: 11, fontWeight: 600, color: TEXT_MID, textAlign: "center", lineHeight: 1.15,
-          maxWidth: node.w - 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+          fontSize: 11, fontWeight: 600, color: TEXT_MID, textAlign: "center", lineHeight: 1.25,
+          maxWidth: node.w - 12, wordBreak: "break-word",
         }}>{node.label}</span>
       )}
 

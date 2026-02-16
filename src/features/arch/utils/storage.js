@@ -1,5 +1,10 @@
 import { uid, cuid, NODE_W, NODE_H, GROUP_W, GROUP_H, CANVAS_W, CANVAS_H } from './uid';
 import { COMPONENTS } from '../constants/components';
+import { CLOUD_COMPONENTS } from '../constants/cloudCatalog';
+
+const COMPONENT_MAP = new Map();
+COMPONENTS.forEach(c => COMPONENT_MAP.set(c.type, c));
+CLOUD_COMPONENTS.forEach(c => COMPONENT_MAP.set(c.type, c));
 
 const STORAGE_KEY = 'akit-designs';
 
@@ -36,6 +41,7 @@ export function serializeDesign(name, nodes, connections) {
     const defaultH = n.type === 'group' ? GROUP_H : NODE_H;
     if (n.w !== defaultW) entry.w = n.w;
     if (n.h !== defaultH) entry.h = n.h;
+    if (n.iconUrl) entry.iconUrl = n.iconUrl;
     return entry;
   });
 
@@ -59,9 +65,9 @@ export function serializeDesign(name, nodes, connections) {
 
 export function deserializeDesign(design, { center = false } = {}) {
   const newNodes = design.nodes.map(n => {
-    const comp = COMPONENTS.find(c => c.type === n.type);
+    const comp = COMPONENT_MAP.get(n.type);
     const isGroup = n.type === 'group';
-    return {
+    const node = {
       id: uid(),
       type: n.type,
       label: n.label,
@@ -72,6 +78,9 @@ export function deserializeDesign(design, { center = false } = {}) {
       w: n.w || (isGroup ? GROUP_W : NODE_W),
       h: n.h || (isGroup ? GROUP_H : NODE_H),
     };
+    const iconUrl = n.iconUrl || comp?.iconUrl;
+    if (iconUrl) node.iconUrl = iconUrl;
+    return node;
   });
 
   const newConns = (design.connections || design.conns || []).map(c => {

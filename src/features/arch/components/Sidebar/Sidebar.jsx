@@ -16,7 +16,7 @@ export default function Sidebar({
   onUndo, onRedo, onClearAll, onLoadTemplate,
   onSaveDesign, onLoadDesign, onDeleteDesign,
   onExportDesign, onExportSavedDesign, onImportDesign,
-  onNodeColorChange, onAddNode,
+  onNodeColorChange, onAddNode, onDeselectAll,
   pushUndo, showToast,
 }) {
   const [sidebarTab, setSidebarTab] = useState("tools");
@@ -79,7 +79,7 @@ export default function Sidebar({
             onExportDesign={onExportDesign}
             onImportDesign={onImportDesign}
             onNodeColorChange={onNodeColorChange}
-            onAddNode={onAddNode}
+            onAddNode={onAddNode} onDeselectAll={onDeselectAll}
             pushUndo={pushUndo} showToast={showToast}
           />
         )}
