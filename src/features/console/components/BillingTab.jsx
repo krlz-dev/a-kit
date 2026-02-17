@@ -52,7 +52,9 @@ export default function BillingTab() {
 
   const plan = sub?.plan || 'free';
   const status = sub?.status || 'active';
-  const canSubscribe = plan === 'free' || status === 'cancelled';
+  const periodEnd = sub?.current_period_end ? new Date(sub.current_period_end) : null;
+  const hasRemainingTime = status === 'cancelled' && periodEnd && periodEnd > new Date();
+  const canSubscribe = plan === 'free' || (status === 'cancelled' && !hasRemainingTime);
 
   return (
     <div>
@@ -62,12 +64,15 @@ export default function BillingTab() {
       <div className="billing-current">
         <div className="billing-plan-name">{plan} plan</div>
         <div className="billing-plan-status">
-          Status: {status === 'trial' ? 'Free trial' : status}
+          Status: {status === 'trial' ? 'Free trial' : hasRemainingTime ? 'Cancelled' : status}
           {plan === 'monthly' && status === 'trial' && sub?.trial_end && (
             <> &middot; Trial ends: {new Date(sub.trial_end).toLocaleDateString()}</>
           )}
-          {plan === 'monthly' && status === 'active' && sub?.current_period_end && (
-            <> &middot; Next billing: {new Date(sub.current_period_end).toLocaleDateString()}</>
+          {plan === 'monthly' && status === 'active' && periodEnd && (
+            <> &middot; Next billing: {periodEnd.toLocaleDateString()}</>
+          )}
+          {hasRemainingTime && (
+            <> &middot; Access until: {periodEnd.toLocaleDateString()}</>
           )}
           {plan === 'lifetime' && <> &middot; No recurring charges</>}
         </div>
@@ -86,7 +91,7 @@ export default function BillingTab() {
       {plan !== 'lifetime' && (
         <>
           <h3 style={{ fontSize: 15, fontWeight: 600, marginBottom: 16 }}>
-            {plan === 'monthly' && status !== 'cancelled' ? 'Upgrade to lifetime' : 'Upgrade'}
+            {(plan === 'monthly' && !canSubscribe) ? 'Upgrade to lifetime' : 'Upgrade'}
           </h3>
           <div className="billing-cards">
             {canSubscribe && (

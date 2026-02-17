@@ -90,10 +90,6 @@ serve(async (req) => {
             if (subscription.subscriptionId) {
               flowSubId = subscription.subscriptionId;
               trialEnd = subscription.trial_end || null;
-              // Use Flow's period dates if available
-              if (subscription.period_end) {
-                periodEnd.setTime(new Date(subscription.period_end).getTime());
-              }
             }
           } catch (e) {
             console.error('Failed to create Flow subscription:', e);
