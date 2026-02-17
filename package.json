@@ -11,6 +11,7 @@
     "gen:icons": "node scripts/generate-cloud-catalog.mjs"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.96.0",
     "gif.js": "^0.2.0",
     "html2canvas": "^1.4.1",
     "react": "^19.2.0",

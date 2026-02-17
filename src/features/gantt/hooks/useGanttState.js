@@ -1,27 +1,43 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { DEFAULT_TASKS } from '../constants/defaults';
 import { DEFAULT_SIDEBAR_WIDTH } from '../constants/ganttTheme';
 import { loadTasks, saveTasks, loadSettings, saveSettings } from '../utils/ganttStorage';
+import { fetchProject, updateProjectData } from '../../../shared/lib/projectsApi';
 import { calculateDateRange, formatDate, getToday } from '../utils/dateUtils';
 
 const MAX_HISTORY = 50;
 
-export function useGanttState() {
-  const [tasks, setTasks] = useState(() => loadTasks() || [...DEFAULT_TASKS]);
+export function useGanttState(projectId) {
+  const isCloud = !!projectId;
+  const [tasks, setTasks] = useState(() => isCloud ? [] : (loadTasks() || [...DEFAULT_TASKS]));
   const [currentView, setCurrentView] = useState(() => loadSettings()?.currentView || 'days');
   const [sidebarWidth, setSidebarWidth] = useState(() => loadSettings()?.sidebarWidth || DEFAULT_SIDEBAR_WIDTH);
-  const [modalTask, setModalTask] = useState(null); // null = closed, {} = new, {id,...} = edit
+  const [modalTask, setModalTask] = useState(null);
   const [toast, setToast] = useState(null);
+  const [cloudLoaded, setCloudLoaded] = useState(!isCloud);
 
   const pastRef = useRef([]);
   const futureRef = useRef([]);
+  const saveTimer = useRef(null);
 
   const showToast = useCallback((msg) => {
     setToast(msg);
     setTimeout(() => setToast(null), 2500);
   }, []);
 
-  const snapshot = () => JSON.parse(JSON.stringify(tasks));
+  // Cloud project loading
+  useEffect(() => {
+    if (!isCloud) return;
+    fetchProject(projectId).then(project => {
+      if (project?.data?.tasks) {
+        setTasks(project.data.tasks);
+      }
+      setCloudLoaded(true);
+    }).catch(() => {
+      showToast('Failed to load project');
+      setCloudLoaded(true);
+    });
+  }, [projectId, isCloud, showToast]);
 
   const pushHistory = useCallback(() => {
     pastRef.current = [...pastRef.current, JSON.parse(JSON.stringify(tasks))];
@@ -31,8 +47,15 @@ export function useGanttState() {
 
   const updateTasks = useCallback((newTasks) => {
     setTasks(newTasks);
-    saveTasks(newTasks);
-  }, []);
+    if (isCloud) {
+      clearTimeout(saveTimer.current);
+      saveTimer.current = setTimeout(() => {
+        updateProjectData(projectId, { tasks: newTasks, settings: { currentView, sidebarWidth } }).catch(() => {});
+      }, 2000);
+    } else {
+      saveTasks(newTasks);
+    }
+  }, [isCloud, projectId, currentView, sidebarWidth]);
 
   const undo = useCallback(() => {
     if (pastRef.current.length === 0) return;
@@ -40,9 +63,9 @@ export function useGanttState() {
     const prev = pastRef.current.pop();
     pastRef.current = [...pastRef.current];
     setTasks(prev);
-    saveTasks(prev);
+    if (!isCloud) saveTasks(prev);
     showToast('Undo');
-  }, [tasks, showToast]);
+  }, [tasks, showToast, isCloud]);
 
   const redo = useCallback(() => {
     if (futureRef.current.length === 0) return;
@@ -50,9 +73,9 @@ export function useGanttState() {
     const next = futureRef.current.pop();
     futureRef.current = [...futureRef.current];
     setTasks(next);
-    saveTasks(next);
+    if (!isCloud) saveTasks(next);
     showToast('Redo');
-  }, [tasks, showToast]);
+  }, [tasks, showToast, isCloud]);
 
   const changeView = useCallback((view) => {
     setCurrentView(view);
@@ -126,6 +149,7 @@ export function useGanttState() {
     endDate,
     modalTask,
     toast,
+    cloudLoaded,
     canUndo: pastRef.current.length > 0,
     canRedo: futureRef.current.length > 0,
     setModalTask,

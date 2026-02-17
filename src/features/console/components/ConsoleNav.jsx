@@ -1,0 +1,21 @@
+import { useAuth } from '../../../shared/context/AuthContext';
+
+export default function ConsoleNav() {
+  const { user, signOut } = useAuth();
+
+  return (
+    <nav className="console-nav">
+      <a href="#/" className="console-nav-brand">
+        <svg viewBox="0 0 32 32" fill="none">
+          <rect width="32" height="32" rx="6" fill="#080c08"/>
+          <path d="M18 16l-2 2-2-2 2-2 2 2zm-2-6l2.12 2.12 2.5-2.5L16 5l-4.62 4.62 2.5 2.5L16 10zm-6 6l2.12-2.12-2.5-2.5L5 16l4.62 4.62 2.5-2.5L10 16zm12 0l-2.12 2.12 2.5 2.5L27 16l-4.62-4.62-2.5 2.5L22 16zm-6 6l-2.12-2.12-2.5 2.5L16 27l4.62-4.62-2.5-2.5L16 22z" fill="#c8e600"/>
+        </svg>
+        kit-a <span className="console-label">Console</span>
+      </a>
+      <div className="console-nav-user">
+        <span className="console-nav-email">{user?.email}</span>
+        <button className="console-nav-signout" onClick={signOut}>Sign out</button>
+      </div>
+    </nav>
+  );
+}

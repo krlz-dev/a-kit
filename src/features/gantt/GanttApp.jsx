@@ -1,4 +1,5 @@
 import { useEffect, useCallback, useRef } from 'react';
+import { useParams } from 'react-router-dom';
 import { HEADER_HEIGHT } from './constants/ganttTheme';
 import { viewConfig } from './utils/viewConfig';
 import { daysBetween, getToday } from './utils/dateUtils';
@@ -15,7 +16,8 @@ import TimelineBody from './components/TimelineBody';
 import TaskModal from './components/TaskModal';
 
 export default function GanttApp() {
-  const state = useGanttState();
+  const { projectId } = useParams();
+  const state = useGanttState(projectId);
   const {
     tasks, currentView, sidebarWidth, startDate, endDate,
     modalTask, toast, canUndo, canRedo,

@@ -1,11 +1,17 @@
 import { StrictMode, lazy, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createHashRouter, RouterProvider } from 'react-router-dom';
+import { AuthProvider } from './shared/context/AuthContext';
 import './App.css';
 
 const LandingPage = lazy(() => import('./features/main/LandingPage'));
 const ArchApp = lazy(() => import('./features/arch/ArchApp'));
 const GanttApp = lazy(() => import('./features/gantt/GanttApp'));
+const LoginPage = lazy(() => import('./features/auth/LoginPage'));
+const RegisterPage = lazy(() => import('./features/auth/RegisterPage'));
+const ForgotPasswordPage = lazy(() => import('./features/auth/ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('./features/auth/ResetPasswordPage'));
+const ConsolePage = lazy(() => import('./features/console/ConsolePage'));
 
 const Loading = () => (
   <div style={{
@@ -17,14 +23,28 @@ const Loading = () => (
   </div>
 );
 
+const wrap = (Component) => (
+  <Suspense fallback={<Loading />}><Component /></Suspense>
+);
+
 const router = createHashRouter([
-  { path: '/', element: <Suspense fallback={<Loading />}><LandingPage /></Suspense> },
-  { path: '/arch', element: <Suspense fallback={<Loading />}><ArchApp /></Suspense> },
-  { path: '/gantt', element: <Suspense fallback={<Loading />}><GanttApp /></Suspense> },
+  { path: '/', element: wrap(LandingPage) },
+  { path: '/arch', element: wrap(ArchApp) },
+  { path: '/arch/:projectId', element: wrap(ArchApp) },
+  { path: '/gantt', element: wrap(GanttApp) },
+  { path: '/gantt/:projectId', element: wrap(GanttApp) },
+  { path: '/login', element: wrap(LoginPage) },
+  { path: '/register', element: wrap(RegisterPage) },
+  { path: '/forgot-password', element: wrap(ForgotPasswordPage) },
+  { path: '/reset-password', element: wrap(ResetPasswordPage) },
+  { path: '/console', element: wrap(ConsolePage) },
+  { path: '/console/:tab', element: wrap(ConsolePage) },
 ]);
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   </StrictMode>,
 );

@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { BG, TEXT, ACCENT, CONN_COLORS } from './constants';
 import { uid, cuid, NODE_W, NODE_H, GROUP_W, GROUP_H, CANVAS_W, CANVAS_H } from './utils/uid';
 import { useToast } from '../../shared/hooks/useToast';
@@ -9,10 +10,14 @@ import {
   serializeDesign, deserializeDesign,
   exportDesignAsJSON, importDesignFromFile,
 } from './utils/storage';
+import { fetchProject, updateProjectData } from '../../shared/lib/projectsApi';
 import Sidebar from './components/Sidebar/Sidebar';
 import Canvas from './components/Canvas/Canvas';
 
 export default function ArchApp() {
+  const { projectId } = useParams();
+  const isCloud = !!projectId;
+
   const [nodes, setNodes] = useState([]);
   const [connections, setConnections] = useState([]);
   const [selected, setSelected] = useState(null);
@@ -30,6 +35,7 @@ export default function ArchApp() {
   const [isPanning, setIsPanning] = useState(false);
   const [spaceHeld, setSpaceHeld] = useState(false);
   const [isTransforming, setIsTransforming] = useState(false);
+  const [cloudLoaded, setCloudLoaded] = useState(false);
   const canvasRef = useRef(null);
   const dragOff = useRef({ x: 0, y: 0 });
   const resizing = useRef(null);
@@ -40,8 +46,37 @@ export default function ArchApp() {
   const spaceHeldRef = useRef(false);
   const wasPanning = useRef(false);
   const transformTimer = useRef(null);
+  const saveTimer = useRef(null);
 
   const { toast, showToast } = useToast();
+
+  // Cloud project loading
+  useEffect(() => {
+    if (!isCloud) return;
+    fetchProject(projectId).then(project => {
+      if (project?.data) {
+        const design = project.data;
+        const { nodes: n, connections: c } = deserializeDesign(design);
+        setNodes(n);
+        setConnections(c);
+      }
+      setCloudLoaded(true);
+    }).catch(() => {
+      showToast('Failed to load project');
+      setCloudLoaded(true);
+    });
+  }, [projectId, isCloud]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Cloud auto-save (debounced 2s)
+  useEffect(() => {
+    if (!isCloud || !cloudLoaded) return;
+    clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      const design = serializeDesign('cloud', nodes, connections);
+      updateProjectData(projectId, design).catch(() => {});
+    }, 2000);
+    return () => clearTimeout(saveTimer.current);
+  }, [nodes, connections, isCloud, cloudLoaded, projectId]);
 
   const markTransforming = useCallback(() => {
     setIsTransforming(true);

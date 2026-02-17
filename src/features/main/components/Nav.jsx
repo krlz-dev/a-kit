@@ -1,4 +1,8 @@
+import { useAuth } from '../../../shared/context/AuthContext';
+
 export default function Nav() {
+  const { user } = useAuth();
+
   return (
     <nav className="landing-nav">
       <div className="landing-container">
@@ -18,6 +22,15 @@ export default function Nav() {
             <span className="nav-tool-dot" style={{ background: '#06b6d4' }} />
             Gantt
           </a>
+          {user ? (
+            <a href="#/console" className="nav-tool-link" style={{ color: '#c8e600' }}>
+              Console
+            </a>
+          ) : (
+            <a href="#/login" className="nav-tool-link" style={{ color: '#7a8e7a' }}>
+              Sign in
+            </a>
+          )}
         </div>
       </div>
     </nav>
