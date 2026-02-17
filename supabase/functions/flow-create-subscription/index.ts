@@ -2,7 +2,7 @@ import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders, handleCors } from '../_shared/cors.ts';
 import { supabaseAdmin } from '../_shared/supabaseAdmin.ts';
-import { flowPost, flowGet } from '../_shared/flow.ts';
+import { flowPost } from '../_shared/flow.ts';
 
 serve(async (req) => {
   const corsRes = handleCors(req);
@@ -21,12 +21,16 @@ serve(async (req) => {
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
     if (authError || !user) throw new Error('Unauthorized');
 
-    // Check if we already have a Flow customer for this user
+    // Check existing subscription
     const { data: sub } = await supabaseAdmin
       .from('subscriptions')
-      .select('flow_customer_id')
+      .select('flow_customer_id, flow_subscription_id, status')
       .eq('user_id', user.id)
       .single();
+
+    if (sub?.flow_subscription_id && sub.status !== 'cancelled') {
+      throw new Error('You already have an active subscription.');
+    }
 
     let customerId = sub?.flow_customer_id;
 
@@ -42,22 +46,39 @@ serve(async (req) => {
       }
       customerId = customer.customerId;
 
-      // Save customer ID
       await supabaseAdmin.from('subscriptions').update({
         flow_customer_id: customerId,
       }).eq('user_id', user.id);
     }
 
-    // Send customer to register their credit card
-    // After registration, user returns to billing page with token
-    const result = await flowPost('/customer/register', {
-      customerId,
-      url_return: 'https://kit-a.com/#/console/billing?registration=complete',
+    // Charge first month upfront (2,000 CLP) → redirect to Flow.cl
+    // Webhook creates the subscription after payment is confirmed
+    const commerceOrder = `KITA-SUB-${Date.now()}`;
+    const result = await flowPost('/payment/create', {
+      commerceOrder,
+      subject: 'kit-a Monthly Plan',
+      amount: '2000',
+      currency: 'CLP',
+      email: user.email!,
+      urlConfirmation: `${Deno.env.get('SUPABASE_URL')}/functions/v1/flow-webhook`,
+      urlReturn: 'https://kit-a.com/#/console/billing',
     });
 
     if (!result.url || !result.token) {
-      throw new Error(result.message || 'Failed to start card registration');
+      throw new Error(result.message || 'Failed to create payment');
     }
+
+    // Log the payment
+    await supabaseAdmin.from('flow_payments').insert({
+      user_id: user.id,
+      flow_order: result.flowOrder || null,
+      flow_token: result.token,
+      amount: 2000,
+      currency: 'CLP',
+      payment_type: 'monthly',
+      status: 1,
+      raw_response: result,
+    });
 
     return new Response(
       JSON.stringify({ url: result.url, token: result.token }),

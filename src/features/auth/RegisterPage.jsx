@@ -11,6 +11,7 @@ export default function RegisterPage() {
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [confirmationSent, setConfirmationSent] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,10 +19,13 @@ export default function RegisterPage() {
     if (password !== confirm) return setError('Passwords do not match');
     if (password.length < 6) return setError('Password must be at least 6 characters');
     setLoading(true);
-    const { error: err } = await signUp(email, password);
+    const { data, error: err } = await signUp(email, password);
     setLoading(false);
     if (err) return setError(err.message);
-    navigate('/console');
+    // If session exists, email confirmation was not required → go to console
+    if (data.session) return navigate('/console');
+    // Otherwise, email confirmation is needed
+    setConfirmationSent(true);
   };
 
   return (
@@ -35,28 +39,37 @@ export default function RegisterPage() {
           kit-a
         </a>
         <h2 className="auth-title">Create account</h2>
-        <form className="auth-form" onSubmit={handleSubmit}>
-          {error && <div className="auth-error">{error}</div>}
-          <div className="auth-field">
-            <label>Email</label>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)} required autoFocus />
+        {confirmationSent ? (
+          <div className="auth-form">
+            <div className="auth-success">Check your email to confirm your account, then sign in.</div>
+            <Link to="/login" className="auth-submit" style={{ textAlign: 'center', textDecoration: 'none', display: 'block' }}>Go to sign in</Link>
           </div>
-          <div className="auth-field">
-            <label>Password</label>
-            <input type="password" value={password} onChange={e => setPassword(e.target.value)} required />
-          </div>
-          <div className="auth-field">
-            <label>Confirm password</label>
-            <input type="password" value={confirm} onChange={e => setConfirm(e.target.value)} required />
-          </div>
-          <button className="auth-submit" type="submit" disabled={loading}>
-            {loading ? 'Creating account…' : 'Create account'}
-          </button>
-        </form>
-        <div className="auth-links">
-          <span />
-          <Link to="/login">Already have an account?</Link>
-        </div>
+        ) : (
+          <>
+            <form className="auth-form" onSubmit={handleSubmit}>
+              {error && <div className="auth-error">{error}</div>}
+              <div className="auth-field">
+                <label>Email</label>
+                <input type="email" value={email} onChange={e => setEmail(e.target.value)} required autoFocus />
+              </div>
+              <div className="auth-field">
+                <label>Password</label>
+                <input type="password" value={password} onChange={e => setPassword(e.target.value)} required />
+              </div>
+              <div className="auth-field">
+                <label>Confirm password</label>
+                <input type="password" value={confirm} onChange={e => setConfirm(e.target.value)} required />
+              </div>
+              <button className="auth-submit" type="submit" disabled={loading}>
+                {loading ? 'Creating account…' : 'Create account'}
+              </button>
+            </form>
+            <div className="auth-links">
+              <span />
+              <Link to="/login">Already have an account?</Link>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

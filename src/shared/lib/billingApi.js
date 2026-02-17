@@ -2,7 +2,15 @@ import { supabase } from './supabase';
 
 async function callEdgeFunction(name, body = {}) {
   const { data, error } = await supabase.functions.invoke(name, { body });
-  if (error) throw new Error(error.message || 'Request failed');
+  if (error) {
+    // Extract the actual error message from the edge function response
+    let msg = 'Request failed';
+    try {
+      const json = await error.context.json();
+      msg = json.error || error.message || msg;
+    } catch { msg = error.message || msg; }
+    throw new Error(msg);
+  }
   return data;
 }
 
@@ -13,16 +21,12 @@ export async function initiateLifetimePayment() {
   window.location.href = `${url}?token=${token}`;
 }
 
-// Monthly Step 1: create customer + redirect to card registration on Flow.cl
+// Monthly: 50 CLP verification payment → redirect to Flow.cl
+// After payment, webhook creates subscription + refunds the 50 CLP
 export async function initiateSubscription() {
   const { url, token } = await callEdgeFunction('flow-create-subscription');
   if (!url) throw new Error('Subscription service unavailable. Please try again.');
   window.location.href = `${url}?token=${token}`;
-}
-
-// Monthly Step 2: after card registration, create the actual subscription
-export async function completeSubscription() {
-  return callEdgeFunction('flow-complete-subscription');
 }
 
 export async function cancelSubscription() {

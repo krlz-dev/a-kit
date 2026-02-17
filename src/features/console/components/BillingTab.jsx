@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
 import { fetchSubscription } from '../../../shared/lib/subscriptionApi';
-import { initiateLifetimePayment, initiateSubscription, completeSubscription, cancelSubscription } from '../../../shared/lib/billingApi';
+import { initiateLifetimePayment, initiateSubscription, cancelSubscription } from '../../../shared/lib/billingApi';
 import { getUserCurrencyInfo, formatLocalPrice } from '../../../shared/lib/currency';
 
 export default function BillingTab() {
-  const location = useLocation();
   const [sub, setSub] = useState(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState('');
@@ -18,35 +16,17 @@ export default function BillingTab() {
     getUserCurrencyInfo().then(setCurrencyInfo);
   }, []);
 
-  // Handle return from Flow.cl card registration
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    if (params.get('registration') === 'complete') {
-      setActionLoading('completing');
-      setMessage('Activating your subscription…');
-      completeSubscription()
-        .then(() => {
-          setMessage('Subscription activated!');
-          setError('');
-          return fetchSubscription();
-        })
-        .then(s => { setSub(s); setActionLoading(''); })
-        .catch(err => {
-          setError(err.message);
-          setMessage('');
-          setActionLoading('');
-        });
-    }
-  }, [location.search]);
-
   const handleUpgrade = async (type) => {
     setError('');
+    setMessage('');
     setActionLoading(type);
     try {
       if (type === 'lifetime') {
         await initiateLifetimePayment();
       } else {
         await initiateSubscription();
+        // Redirects to Flow.cl for 50 CLP verification payment
+        // Webhook creates subscription + refunds after payment
       }
     } catch (err) {
       setError(err.message);
@@ -72,6 +52,7 @@ export default function BillingTab() {
 
   const plan = sub?.plan || 'free';
   const status = sub?.status || 'active';
+  const canSubscribe = plan === 'free' || status === 'cancelled';
 
   return (
     <div>
@@ -81,13 +62,16 @@ export default function BillingTab() {
       <div className="billing-current">
         <div className="billing-plan-name">{plan} plan</div>
         <div className="billing-plan-status">
-          Status: {status}
-          {plan === 'monthly' && sub?.current_period_end && (
+          Status: {status === 'trial' ? 'Free trial' : status}
+          {plan === 'monthly' && status === 'trial' && sub?.trial_end && (
+            <> &middot; Trial ends: {new Date(sub.trial_end).toLocaleDateString()}</>
+          )}
+          {plan === 'monthly' && status === 'active' && sub?.current_period_end && (
             <> &middot; Next billing: {new Date(sub.current_period_end).toLocaleDateString()}</>
           )}
           {plan === 'lifetime' && <> &middot; No recurring charges</>}
         </div>
-        {plan === 'monthly' && status === 'active' && (
+        {plan === 'monthly' && (status === 'active' || status === 'trial') && (
           <button
             className="console-btn console-btn-ghost"
             style={{ marginTop: 12 }}
@@ -99,30 +83,34 @@ export default function BillingTab() {
         )}
       </div>
 
-      {plan === 'free' && (
+      {plan !== 'lifetime' && (
         <>
-          <h3 style={{ fontSize: 15, fontWeight: 600, marginBottom: 16 }}>Upgrade</h3>
+          <h3 style={{ fontSize: 15, fontWeight: 600, marginBottom: 16 }}>
+            {plan === 'monthly' && status !== 'cancelled' ? 'Upgrade to lifetime' : 'Upgrade'}
+          </h3>
           <div className="billing-cards">
-            <div className="billing-card">
-              <div className="billing-card-price">$2,000 CLP</div>
-              {formatLocalPrice(2000, currencyInfo) && (
-                <div style={{ fontSize: 12, color: '#7a8e7a', marginTop: 2 }}>{formatLocalPrice(2000, currencyInfo)}</div>
-              )}
-              <div className="billing-card-period">per month</div>
-              <ul className="billing-card-features">
-                <li>Unlimited cloud projects</li>
-                <li>Auto-save to cloud</li>
-                <li>Cancel anytime</li>
-              </ul>
-              <button
-                className="console-btn console-btn-primary"
-                onClick={() => handleUpgrade('monthly')}
-                disabled={!!actionLoading}
-                style={{ width: '100%' }}
-              >
-                {actionLoading === 'monthly' ? 'Redirecting…' : 'Subscribe monthly'}
-              </button>
-            </div>
+            {canSubscribe && (
+              <div className="billing-card">
+                <div className="billing-card-price">$2,000 CLP</div>
+                {formatLocalPrice(2000, currencyInfo) && (
+                  <div style={{ fontSize: 12, color: '#7a8e7a', marginTop: 2 }}>{formatLocalPrice(2000, currencyInfo)}</div>
+                )}
+                <div className="billing-card-period">per month</div>
+                <ul className="billing-card-features">
+                  <li>Unlimited cloud projects</li>
+                  <li>Auto-save to cloud</li>
+                  <li>Cancel anytime</li>
+                </ul>
+                <button
+                  className="console-btn console-btn-primary"
+                  onClick={() => handleUpgrade('monthly')}
+                  disabled={!!actionLoading}
+                  style={{ width: '100%' }}
+                >
+                  {actionLoading === 'monthly' ? 'Redirecting…' : 'Subscribe monthly'}
+                </button>
+              </div>
+            )}
 
             <div className="billing-card" style={{ position: 'relative', overflow: 'hidden', borderColor: 'rgba(200,230,0,0.25)' }}>
               {/* Limited-time ribbon */}
@@ -152,6 +140,7 @@ export default function BillingTab() {
                 <li>Unlimited cloud projects</li>
                 <li>Auto-save to cloud</li>
                 <li>Lifetime access</li>
+                {plan === 'monthly' && status !== 'cancelled' && <li>Your monthly subscription will be cancelled</li>}
               </ul>
               <button
                 className="console-btn console-btn-primary"
