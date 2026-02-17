@@ -16,11 +16,11 @@ export default function Nav() {
         <div className="nav-links">
           <a href="#/arch" className="nav-tool-link">
             <span className="nav-tool-dot" style={{ background: '#6366f1' }} />
-            Arch
+            Try Arch
           </a>
           <a href="#/gantt" className="nav-tool-link">
             <span className="nav-tool-dot" style={{ background: '#06b6d4' }} />
-            Gantt
+            Try Gantt
           </a>
           {user ? (
             <a href="#/console" className="nav-tool-link" style={{ color: '#c8e600' }}>

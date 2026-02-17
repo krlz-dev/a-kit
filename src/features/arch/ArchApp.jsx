@@ -6,7 +6,6 @@ import { useToast } from '../../shared/hooks/useToast';
 import { useUndo } from '../../shared/hooks/useUndo';
 import { useKeyboardShortcuts } from '../../shared/hooks/useKeyboardShortcuts';
 import {
-  getSavedDesigns, saveDesign as storeSaveDesign, deleteDesign as storeDeleteDesign,
   serializeDesign, deserializeDesign,
   exportDesignAsJSON, importDesignFromFile,
 } from './utils/storage';
@@ -29,7 +28,6 @@ export default function ArchApp() {
   const [connColorIdx, setConnColorIdx] = useState(0);
   const [bidir, setBidir] = useState(false);
   const [editingLabel, setEditingLabel] = useState(null);
-  const [savedDesigns, setSavedDesigns] = useState(() => getSavedDesigns());
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [isPanning, setIsPanning] = useState(false);
@@ -372,31 +370,12 @@ export default function ArchApp() {
     loadDesign({ name: tpl.name, nodes: tpl.nodes, conns: tpl.conns }, { center: true });
   }, [loadDesign]);
 
-  const onSaveDesign = useCallback((name) => {
-    if (nodes.length === 0) return;
-    const design = serializeDesign(name, nodes, connections);
-    const updated = storeSaveDesign(design);
-    setSavedDesigns(updated);
-    showToast(`Saved: ${name}`);
-  }, [nodes, connections, showToast]);
-
-  const onDeleteDesign = useCallback((savedAt) => {
-    const updated = storeDeleteDesign(savedAt);
-    setSavedDesigns(updated);
-    showToast("Design deleted");
-  }, [showToast]);
-
   const onExportDesign = useCallback(() => {
     if (nodes.length === 0) return;
     const design = serializeDesign('Untitled', nodes, connections);
     exportDesignAsJSON(design);
     showToast("Exported as JSON");
   }, [nodes, connections, showToast]);
-
-  const onExportSavedDesign = useCallback((design) => {
-    exportDesignAsJSON(design);
-    showToast("Exported as JSON");
-  }, [showToast]);
 
   const onImportDesign = useCallback(() => {
     importDesignFromFile()
@@ -463,7 +442,6 @@ export default function ArchApp() {
         selectedNode={selectedNode} selectedConnObj={selectedConnObj}
         connectMode={connectMode} animating={animating} speed={speed}
         connColorIdx={connColorIdx} undoStack={undoStack} redoStack={redoStack}
-        savedDesigns={savedDesigns}
         onSetEditingLabel={setEditingLabel}
         onToggleConnect={onToggleConnect}
         onUnlinkSelected={unlinkSelected}
@@ -478,11 +456,7 @@ export default function ArchApp() {
         onUndo={undo} onRedo={redo}
         onClearAll={onClearAll}
         onLoadTemplate={loadTemplate}
-        onSaveDesign={onSaveDesign}
-        onLoadDesign={loadDesign}
-        onDeleteDesign={onDeleteDesign}
         onExportDesign={onExportDesign}
-        onExportSavedDesign={onExportSavedDesign}
         onImportDesign={onImportDesign}
         onNodeColorChange={onNodeColorChange}
         onAddNode={addNode}

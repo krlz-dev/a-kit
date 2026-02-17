@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { DEFAULT_TASKS } from '../constants/defaults';
 import { DEFAULT_SIDEBAR_WIDTH } from '../constants/ganttTheme';
-import { loadTasks, saveTasks, loadSettings, saveSettings } from '../utils/ganttStorage';
+import { loadSettings, saveSettings } from '../utils/ganttStorage';
 import { fetchProject, updateProjectData } from '../../../shared/lib/projectsApi';
 import { calculateDateRange, formatDate, getToday } from '../utils/dateUtils';
 
@@ -9,7 +9,7 @@ const MAX_HISTORY = 50;
 
 export function useGanttState(projectId) {
   const isCloud = !!projectId;
-  const [tasks, setTasks] = useState(() => isCloud ? [] : (loadTasks() || [...DEFAULT_TASKS]));
+  const [tasks, setTasks] = useState(() => isCloud ? [] : [...DEFAULT_TASKS]);
   const [currentView, setCurrentView] = useState(() => loadSettings()?.currentView || 'days');
   const [sidebarWidth, setSidebarWidth] = useState(() => loadSettings()?.sidebarWidth || DEFAULT_SIDEBAR_WIDTH);
   const [modalTask, setModalTask] = useState(null);
@@ -52,8 +52,6 @@ export function useGanttState(projectId) {
       saveTimer.current = setTimeout(() => {
         updateProjectData(projectId, { tasks: newTasks, settings: { currentView, sidebarWidth } }).catch(() => {});
       }, 2000);
-    } else {
-      saveTasks(newTasks);
     }
   }, [isCloud, projectId, currentView, sidebarWidth]);
 
@@ -63,9 +61,8 @@ export function useGanttState(projectId) {
     const prev = pastRef.current.pop();
     pastRef.current = [...pastRef.current];
     setTasks(prev);
-    if (!isCloud) saveTasks(prev);
     showToast('Undo');
-  }, [tasks, showToast, isCloud]);
+  }, [tasks, showToast]);
 
   const redo = useCallback(() => {
     if (futureRef.current.length === 0) return;
@@ -73,9 +70,8 @@ export function useGanttState(projectId) {
     const next = futureRef.current.pop();
     futureRef.current = [...futureRef.current];
     setTasks(next);
-    if (!isCloud) saveTasks(next);
     showToast('Redo');
-  }, [tasks, showToast, isCloud]);
+  }, [tasks, showToast]);
 
   const changeView = useCallback((view) => {
     setCurrentView(view);

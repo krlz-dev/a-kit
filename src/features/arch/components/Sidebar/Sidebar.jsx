@@ -2,20 +2,17 @@ import { useState } from 'react';
 import { ACCENT, ACCENT_DIM, BG, SIDEBAR_BG, TEXT, TEXT_DIM, DIVIDER } from '../../constants';
 import ToolsTab from './ToolsTab';
 import TemplatesTab from './TemplatesTab';
-import DesignsTab from './DesignsTab';
 
 export default function Sidebar({
   nodes, connections, nodeMap,
   selected, selectedConn, selectedNode, selectedConnObj,
   connectMode, animating, speed, connColorIdx, undoStack, redoStack,
-  savedDesigns,
   onSetEditingLabel, onToggleConnect, onUnlinkSelected, onDeleteSelected,
   onSelectConn, onRemoveConn, onToggleConnDirection,
   onConnLabelChange,
   onToggleAnimating, onSetSpeed, onSetConnColorIdx,
   onUndo, onRedo, onClearAll, onLoadTemplate,
-  onSaveDesign, onLoadDesign, onDeleteDesign,
-  onExportDesign, onExportSavedDesign, onImportDesign,
+  onExportDesign, onImportDesign,
   onNodeColorChange, onAddNode, onDeselectAll,
   pushUndo, showToast,
 }) {
@@ -46,7 +43,6 @@ export default function Sidebar({
         {[
           { id: "tools", label: "Tools" },
           { id: "templates", label: "Templates" },
-          { id: "saved", label: savedDesigns.length > 0 ? `Saved (${savedDesigns.length})` : "Saved" },
         ].map(tab => (
           <button key={tab.id} onClick={() => setSidebarTab(tab.id)} style={{
             flex: 1, padding: "10px 0", background: "transparent", border: "none",
@@ -75,7 +71,6 @@ export default function Sidebar({
             onToggleAnimating={onToggleAnimating} onSetSpeed={onSetSpeed}
             onSetConnColorIdx={onSetConnColorIdx}
             onUndo={onUndo} onRedo={onRedo} onClearAll={onClearAll}
-            onSaveDesign={onSaveDesign}
             onExportDesign={onExportDesign}
             onImportDesign={onImportDesign}
             onNodeColorChange={onNodeColorChange}
@@ -85,14 +80,6 @@ export default function Sidebar({
         )}
         {sidebarTab === "templates" && (
           <TemplatesTab onLoadTemplate={onLoadTemplate} />
-        )}
-        {sidebarTab === "saved" && (
-          <DesignsTab
-            savedDesigns={savedDesigns}
-            onLoadDesign={onLoadDesign}
-            onDeleteDesign={onDeleteDesign}
-            onExportSavedDesign={onExportSavedDesign}
-          />
         )}
       </div>
 

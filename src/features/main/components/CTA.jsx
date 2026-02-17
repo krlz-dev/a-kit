@@ -11,11 +11,11 @@ export default function CTA() {
           </a>
           <a href="#/arch" className="landing-btn landing-btn-ghost">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-            Launch Arch
+            Try Arch
           </a>
           <a href="#/gantt" className="landing-btn landing-btn-ghost">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="12" height="4" rx="1"/><rect x="3" y="16" width="15" height="4" rx="1"/></svg>
-            Launch Gantt
+            Try Gantt
           </a>
         </div>
       </div>

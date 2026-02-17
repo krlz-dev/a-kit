@@ -2,7 +2,17 @@ const FAQ_ITEMS = [
   {
     question: 'What is kit-a?',
     answer:
-      'kit-a is a browser-based toolkit for creating system architecture diagrams and Gantt project timelines. It runs entirely in your browser — no sign-up, no installation, no data sent to any server.',
+      'kit-a is a browser-based toolkit for creating system architecture diagrams and Gantt project timelines. Try the tools instantly with no sign-up, or create a free account to save your projects in the cloud.',
+  },
+  {
+    question: 'Do I need an account?',
+    answer:
+      'You can try both tools without an account — no sign-up required. To save projects and access them from anywhere, create a free account. The free plan includes 1 project with full cloud storage.',
+  },
+  {
+    question: 'What are the paid plans?',
+    answer:
+      'The free plan gives you 1 project. For unlimited projects, choose Monthly at $2,000 CLP/month or Lifetime at $100,000 CLP (one-time, available for a limited time). Both plans include full access to all features and cloud storage.',
   },
   {
     question: 'What types of architecture diagrams can I create?',
@@ -25,9 +35,9 @@ const FAQ_ITEMS = [
       'kit-a exports to PNG (at 2x resolution), JPG, animated GIF, and WebM video. Share your diagrams and timelines in docs, slides, or messaging apps.',
   },
   {
-    question: 'Does kit-a require an account?',
+    question: 'How is my data stored?',
     answer:
-      'No. kit-a runs entirely in your browser with zero configuration. Your work is saved locally via localStorage, and you can export/import projects as JSON files.',
+      'When you try the tools without an account, nothing is saved — it\'s a live demo. With an account, your projects are stored securely in the cloud and accessible from any device via the Console.',
   },
 ];
 

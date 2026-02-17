@@ -19,7 +19,7 @@ export default function ToolsTab({
   onConnLabelChange,
   onToggleAnimating, onSetSpeed, onSetConnColorIdx,
   onUndo, onRedo, onClearAll,
-  onSaveDesign, onExportDesign, onImportDesign,
+  onExportDesign, onImportDesign,
   onNodeColorChange, onAddNode, onDeselectAll,
   pushUndo, showToast,
 }) {
@@ -259,10 +259,6 @@ export default function ToolsTab({
       <div style={{ marginTop: 16 }}>
         <div style={{ fontSize: 9, fontWeight: 600, color: TEXT_DIM, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>File</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-          <button className="sidebar-btn" onClick={() => { const n = prompt('Design name:'); if (n?.trim()) onSaveDesign(n.trim()); }} disabled={nodes.length === 0}>
-            <svg width="15" height="15" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z" fill="currentColor" /></svg>
-            Save
-          </button>
           <button className="sidebar-btn" onClick={onExportDesign} disabled={nodes.length === 0}>
             <svg width="15" height="15" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="currentColor" /></svg>
             Export JSON

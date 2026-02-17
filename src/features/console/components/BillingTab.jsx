@@ -121,6 +121,7 @@ export default function BillingTab() {
             <div className="billing-card">
               <div className="billing-card-price">$100,000 CLP</div>
               <div className="billing-card-period">one-time payment</div>
+              <div style={{ fontSize: 11, color: '#c8e600', fontWeight: 600, margin: '6px 0 4px', letterSpacing: '0.02em' }}>Limited-time offer</div>
               <ul className="billing-card-features">
                 <li>Unlimited cloud projects</li>
                 <li>Auto-save to cloud</li>
