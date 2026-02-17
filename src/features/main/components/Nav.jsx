@@ -15,11 +15,11 @@ export default function Nav() {
         </a>
         <div className="nav-links">
           <a href="#/arch" className="nav-tool-link">
-            <span className="nav-tool-dot" style={{ background: '#6366f1' }} />
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
             Try Arch
           </a>
           <a href="#/gantt" className="nav-tool-link">
-            <span className="nav-tool-dot" style={{ background: '#06b6d4' }} />
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" strokeWidth="2"><rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="12" height="4" rx="1"/><rect x="3" y="16" width="15" height="4" rx="1"/></svg>
             Try Gantt
           </a>
           {user ? (

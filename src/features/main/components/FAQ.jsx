@@ -12,7 +12,7 @@ const FAQ_ITEMS = [
   {
     question: 'What are the paid plans?',
     answer:
-      'The free plan gives you 1 project. For unlimited projects, choose Monthly at $2,000 CLP/month or Lifetime at $100,000 CLP (one-time, available for a limited time). Both plans include full access to all features and cloud storage.',
+      'The free plan gives you 1 project. For unlimited projects, choose Monthly at $2,000 CLP/month or Lifetime at $100,000 CLP (one-time, available for a limited time). Both plans include full access to all features and cloud storage. Prices are in CLP (Chilean Pesos). Approximate local currency equivalents are shown on the billing page.',
   },
   {
     question: 'What types of architecture diagrams can I create?',

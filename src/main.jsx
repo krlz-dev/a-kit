@@ -4,14 +4,28 @@ import { createHashRouter, RouterProvider } from 'react-router-dom';
 import { AuthProvider } from './shared/context/AuthContext';
 import './App.css';
 
-const LandingPage = lazy(() => import('./features/main/LandingPage'));
-const ArchApp = lazy(() => import('./features/arch/ArchApp'));
-const GanttApp = lazy(() => import('./features/gantt/GanttApp'));
-const LoginPage = lazy(() => import('./features/auth/LoginPage'));
-const RegisterPage = lazy(() => import('./features/auth/RegisterPage'));
-const ForgotPasswordPage = lazy(() => import('./features/auth/ForgotPasswordPage'));
-const ResetPasswordPage = lazy(() => import('./features/auth/ResetPasswordPage'));
-const ConsolePage = lazy(() => import('./features/console/ConsolePage'));
+// Retry dynamic imports once by reloading to get fresh chunk hashes after deploy
+const lazyRetry = (importFn) => lazy(() =>
+  importFn().catch(() => {
+    const reloaded = sessionStorage.getItem('chunk_reload');
+    if (!reloaded) {
+      sessionStorage.setItem('chunk_reload', '1');
+      window.location.reload();
+      return new Promise(() => {}); // never resolves — page is reloading
+    }
+    sessionStorage.removeItem('chunk_reload');
+    return importFn(); // second attempt, let it fail naturally if still broken
+  })
+);
+
+const LandingPage = lazyRetry(() => import('./features/main/LandingPage'));
+const ArchApp = lazyRetry(() => import('./features/arch/ArchApp'));
+const GanttApp = lazyRetry(() => import('./features/gantt/GanttApp'));
+const LoginPage = lazyRetry(() => import('./features/auth/LoginPage'));
+const RegisterPage = lazyRetry(() => import('./features/auth/RegisterPage'));
+const ForgotPasswordPage = lazyRetry(() => import('./features/auth/ForgotPasswordPage'));
+const ResetPasswordPage = lazyRetry(() => import('./features/auth/ResetPasswordPage'));
+const ConsolePage = lazyRetry(() => import('./features/console/ConsolePage'));
 
 const Loading = () => (
   <div style={{
