@@ -6,7 +6,7 @@
 
     <!-- SEO -->
     <title>kit-a — Architecture & Project Planning Tools</title>
-    <meta name="description" content="kit-a is a free, browser-based toolkit for architecture diagrams and Gantt project planning. Design systems, plan timelines, export anywhere. No sign-up, no bloat." />
+    <meta name="description" content="kit-a is a browser-based toolkit for architecture diagrams and Gantt project planning. Design systems, plan timelines, export anywhere. No sign-up, no bloat." />
     <meta name="keywords" content="architecture diagram, gantt chart, project planning, diagram editor, cloud architecture, microservices diagram, timeline, system design tool, interactive canvas, free diagram tool" />
     <meta name="author" content="krlz-dev" />
     <meta name="robots" content="index, follow" />
@@ -34,17 +34,83 @@
 
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "kit-a",
-      "url": "https://kit-a.com/",
-      "description": "A free, browser-based toolkit for architecture diagrams and Gantt project planning. Design systems, plan timelines, export anywhere.",
-      "applicationCategory": "DesignApplication",
-      "operatingSystem": "Any",
-      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-      "browserRequirements": "Requires a modern web browser"
-    }
+    [
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "kit-a",
+        "url": "https://kit-a.com/",
+        "description": "A browser-based toolkit for system architecture diagrams and Gantt project planning. Drag, connect, plan, export — no sign-up required.",
+        "applicationCategory": "DesignApplication",
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires a modern web browser",
+        "featureList": [
+          "14 architecture node types (Client, Server, Database, API, Auth, Queue, Cache, Cloud, Bucket, Function, Monitor, Mobile, Web App, Group)",
+          "Smart connections with labels, colors, and animated flow",
+          "6 starter architecture templates",
+          "Interactive Gantt chart with 6 view modes",
+          "Task dependencies, milestones, and progress tracking",
+          "Export to PNG, JPG, animated GIF, and WebM video",
+          "Save and load via localStorage and JSON"
+        ],
+        "author": {
+          "@type": "Person",
+          "name": "krlz-dev",
+          "url": "https://github.com/krlz-dev"
+        },
+        "sourceOrganization": {
+          "@type": "Organization",
+          "name": "krlz-dev",
+          "url": "https://github.com/krlz-dev"
+        }
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is kit-a?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "kit-a is a browser-based toolkit for creating system architecture diagrams and Gantt project timelines. It runs entirely in the browser with no sign-up or installation required."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What types of architecture diagrams can I create with kit-a?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "kit-a supports 14 node types including Client, Server, Database, API, Auth, Queue, Cache, Cloud, Bucket, Function, Monitor, Mobile, Web App, and Group. It includes 6 starter templates: 3-Tier Web App, Microservices, Event-Driven, Auth Flow, Auth0 Integration, and CI/CD Pipeline."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What export formats does kit-a support?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "kit-a exports diagrams and Gantt charts to PNG (at 2x resolution), JPG, animated GIF, and WebM video. You can share them in docs, slides, or messaging apps."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does the Gantt chart feature work in kit-a?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "kit-a's Gantt planner offers 6 view modes (days, weeks, months, quarters, years, full timeline), drag-to-schedule bars, resizable durations, task dependencies, milestones, progress tracking, and color-coded team assignments."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does kit-a require an account or installation?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. kit-a runs entirely in your browser. There is no sign-up, no installation, and no data sent to any server. Your work is saved locally in your browser via localStorage, and you can export/import projects as JSON files."
+            }
+          }
+        ]
+      }
+    ]
     </script>
   </head>
   <body>

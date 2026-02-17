@@ -10,10 +10,14 @@ export default function Nav() {
           <span>kit-a <span className="ver">v1.0</span></span>
         </a>
         <div className="nav-links">
-          <a href="#/arch">Arch</a>
-          <a href="#/gantt">Gantt</a>
-          <a href="https://github.com/krlz-dev/a-kit" target="_blank" rel="noopener noreferrer">GitHub</a>
-          <a href="#/arch" className="landing-btn landing-btn-primary landing-btn-sm">Launch App</a>
+          <a href="#/arch" className="nav-tool-link">
+            <span className="nav-tool-dot" style={{ background: '#6366f1' }} />
+            Arch
+          </a>
+          <a href="#/gantt" className="nav-tool-link">
+            <span className="nav-tool-dot" style={{ background: '#06b6d4' }} />
+            Gantt
+          </a>
         </div>
       </div>
     </nav>

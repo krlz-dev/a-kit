@@ -8,6 +8,7 @@ import ComponentTypes from './components/ComponentTypes';
 import Templates from './components/Templates';
 import Stack from './components/Stack';
 import CTA from './components/CTA';
+import FAQ from './components/FAQ';
 import Footer from './components/Footer';
 
 export default function LandingPage() {
@@ -31,13 +32,18 @@ export default function LandingPage() {
     <div style={{ background: '#080c08', color: '#d8e4d8', minHeight: '100vh', lineHeight: 1.6, overflowX: 'hidden' }}>
       <div className="dot-grid" />
       <Nav />
-      <Hero />
-      <ToolsShowcase />
-      <Features />
-      <ComponentTypes />
-      <Templates />
-      <Stack />
-      <CTA />
+      <main>
+        <article>
+          <Hero />
+          <ToolsShowcase />
+          <Features />
+          <ComponentTypes />
+          <Templates />
+          <Stack />
+          <FAQ />
+          <CTA />
+        </article>
+      </main>
       <Footer />
     </div>
   );

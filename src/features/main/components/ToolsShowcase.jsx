@@ -18,8 +18,9 @@ export default function ToolsShowcase() {
             </div>
             <h3>kit-a Arch</h3>
             <p>
-              Drag-and-drop architecture diagrams. 14 node types, smart connections,
-              6 starter templates. Export to PNG, GIF, or WebM.
+              Visual system architecture on a drag-and-drop canvas. 14 node types, animated
+              connections with labels, cloud provider catalog, and 6 starter templates.
+              Export to PNG 2x, JPG, animated GIF, or WebM.
             </p>
             <span className="tool-link">
               Open Arch Editor
@@ -36,8 +37,9 @@ export default function ToolsShowcase() {
             </div>
             <h3>kit-a Gantt</h3>
             <p>
-              Interactive Gantt chart for project planning. 6 view modes, drag-to-schedule,
-              task dependencies, and export to PNG or SVG.
+              Interactive Gantt charts for project planning. 6 view modes from days to years,
+              drag to schedule and resize tasks, define dependencies, track progress with
+              milestones, and assign team members. Export or import as JSON.
             </p>
             <span className="tool-link">
               Open Gantt Planner

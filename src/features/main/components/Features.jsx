@@ -7,6 +7,7 @@ const FEATURES = [
       </svg>
     ),
     iconBg: 'rgba(99,102,241,0.12)',
+    badge: 'Arch',
     title: 'Node-Based Canvas',
     desc: '14 component types \u2014 Client, Server, DB, API, Auth, Queue, Cache, Cloud, Function, and more. Drag to place, double-click to rename.',
   },
@@ -17,8 +18,32 @@ const FEATURES = [
       </svg>
     ),
     iconBg: 'rgba(6,182,212,0.12)',
+    badge: 'Arch',
     title: 'Smart Connections',
     desc: 'Labeled, colored, directional or bidirectional. Animated flow visualization with adjustable speed. 7 color options.',
+  },
+  {
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ec4899" strokeWidth="2">
+        <rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="12" height="4" rx="1"/>
+        <rect x="3" y="16" width="15" height="4" rx="1"/>
+      </svg>
+    ),
+    iconBg: 'rgba(236,72,153,0.12)',
+    badge: 'Gantt',
+    title: 'Interactive Timeline',
+    desc: '6 view modes \u2014 days, weeks, months, quarters, years, or full timeline. Drag bars to reschedule, resize to adjust duration.',
+  },
+  {
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2">
+        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+      </svg>
+    ),
+    iconBg: 'rgba(245,158,11,0.12)',
+    badge: 'Gantt',
+    title: 'Tasks & Dependencies',
+    desc: 'Tasks, groups, and milestones with progress tracking. Define dependencies between tasks. Assign owners and color-code by team.',
   },
   {
     icon: (
@@ -32,27 +57,6 @@ const FEATURES = [
   },
   {
     icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2">
-        <polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/>
-        <path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/>
-      </svg>
-    ),
-    iconBg: 'rgba(245,158,11,0.12)',
-    title: 'Full Undo/Redo',
-    desc: '40-state history with Ctrl+Z / Ctrl+Shift+Z. Move fast, break things, then undo them. Every action is reversible.',
-  },
-  {
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ec4899" strokeWidth="2">
-        <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
-      </svg>
-    ),
-    iconBg: 'rgba(236,72,153,0.12)',
-    title: 'Zero Dependencies*',
-    desc: 'React + Vite + two focused libraries. No state management bloat, no CSS frameworks, no vendor lock-in. *Almost zero.',
-  },
-  {
-    icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2">
         <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
         <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
@@ -60,7 +64,7 @@ const FEATURES = [
     ),
     iconBg: 'rgba(16,185,129,0.12)',
     title: 'Save & Load',
-    desc: 'Persist to localStorage, export/import as JSON. Your diagrams live in your browser \u2014 no account required, ever.',
+    desc: 'Persist to localStorage, export/import as JSON. Your work lives in your browser \u2014 no account required, ever.',
   },
 ];
 
@@ -75,7 +79,10 @@ export default function Features() {
         <div className="features-grid">
           {FEATURES.map(f => (
             <div className="feature-card" key={f.title}>
-              <div className="feature-icon" style={{ background: f.iconBg }}>{f.icon}</div>
+              <div className="feature-card-top">
+                <div className="feature-icon" style={{ background: f.iconBg }}>{f.icon}</div>
+                {f.badge && <span className="feature-badge">{f.badge}</span>}
+              </div>
               <h3>{f.title}</h3>
               <p>{f.desc}</p>
             </div>
