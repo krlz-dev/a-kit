@@ -1,4 +1,8 @@
+import { useAuth } from '../../../shared/context/AuthContext';
+
 export default function Hero() {
+  const { user } = useAuth();
+
   return (
     <section className="hero">
       <div className="hero-badge">
@@ -11,14 +15,22 @@ export default function Hero() {
         Drag, connect, plan, export. No sign-up. No bloat.
       </p>
       <div className="hero-actions">
-        <a href="#/arch" className="landing-btn landing-btn-primary">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-          Try Arch
-        </a>
-        <a href="#/gantt" className="landing-btn landing-btn-ghost">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="12" height="4" rx="1"/><rect x="3" y="16" width="15" height="4" rx="1"/></svg>
-          Try Gantt
-        </a>
+        {user ? (
+          <a href="#/console" className="landing-btn landing-btn-primary">
+            Go to Console
+          </a>
+        ) : (
+          <>
+            <a href="#/arch" className="landing-btn landing-btn-primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+              Try Arch
+            </a>
+            <a href="#/gantt" className="landing-btn landing-btn-ghost">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="12" height="4" rx="1"/><rect x="3" y="16" width="15" height="4" rx="1"/></svg>
+              Try Gantt
+            </a>
+          </>
+        )}
       </div>
 
       <div className="hero-previews">

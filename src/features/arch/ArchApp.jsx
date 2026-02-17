@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { BG, TEXT, ACCENT, CONN_COLORS } from './constants';
+import { BG, TEXT, ACCENT, CONN_COLORS, TEMPLATES } from './constants';
 import { uid, cuid, NODE_W, NODE_H, GROUP_W, GROUP_H, CANVAS_W, CANVAS_H } from './utils/uid';
 import { useToast } from '../../shared/hooks/useToast';
 import { useUndo } from '../../shared/hooks/useUndo';
@@ -10,6 +10,7 @@ import {
   exportDesignAsJSON, importDesignFromFile,
 } from './utils/storage';
 import { fetchProject, updateProjectData } from '../../shared/lib/projectsApi';
+import { useAuth } from '../../shared/context/AuthContext';
 import Sidebar from './components/Sidebar/Sidebar';
 import Canvas from './components/Canvas/Canvas';
 
@@ -47,6 +48,19 @@ export default function ArchApp() {
   const saveTimer = useRef(null);
 
   const { toast, showToast } = useToast();
+  const { user } = useAuth();
+
+  // Load default template for non-authenticated users (no cloud project)
+  useEffect(() => {
+    if (isCloud || user) return;
+    const tpl = TEMPLATES[0];
+    const { nodes: n, connections: c } = deserializeDesign(
+      { name: tpl.name, nodes: tpl.nodes, conns: tpl.conns },
+      { center: true }
+    );
+    setNodes(n);
+    setConnections(c);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Cloud project loading
   useEffect(() => {

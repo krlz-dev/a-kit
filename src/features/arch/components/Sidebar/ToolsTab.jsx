@@ -1,6 +1,8 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { ACCENT, BG, TEXT, TEXT_DIM, TEXT_MID, SURFACE, CARD_BORDER, CONN_COLORS, COMPONENTS, CLOUD_COMPONENTS, PROVIDERS } from '../../constants';
 import { exportAsPNG, exportAsJPG, exportAsGIF, exportAsWebM } from '../../utils/exportCanvas';
+import { useAuth } from '../../../../shared/context/AuthContext';
+import { fetchSubscription } from '../../../../shared/lib/subscriptionApi';
 import NodeIcon from '../NodeIcon';
 import NodeInspector from './NodeInspector';
 import LinkInspector from './LinkInspector';
@@ -23,10 +25,19 @@ export default function ToolsTab({
   onNodeColorChange, onAddNode, onDeselectAll,
   pushUndo, showToast,
 }) {
+  const { user } = useAuth();
+  const [isPaid, setIsPaid] = useState(false);
   const [exporting, setExporting] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeProvider, setActiveProvider] = useState('all');
   const [visibleCount, setVisibleCount] = useState(50);
+
+  useEffect(() => {
+    if (!user) { setIsPaid(false); return; }
+    fetchSubscription().then(sub => {
+      setIsPaid(sub?.plan === 'monthly' || sub?.plan === 'lifetime');
+    }).catch(() => setIsPaid(false));
+  }, [user]);
 
   const doExport = async (type, fn) => {
     setExporting(type);
@@ -42,7 +53,9 @@ export default function ToolsTab({
 
   const filtered = useMemo(() => {
     let list = ALL_COMPONENTS;
-    if (activeProvider !== 'all') {
+    if (!isPaid) {
+      list = list.filter(c => c.provider === 'generic');
+    } else if (activeProvider !== 'all') {
       list = list.filter(c => c.provider === activeProvider);
     }
     if (searchQuery.trim()) {
@@ -54,9 +67,13 @@ export default function ToolsTab({
       );
     }
     return list;
-  }, [searchQuery, activeProvider]);
+  }, [searchQuery, activeProvider, isPaid]);
 
   const handleProviderChange = (id) => {
+    if (!isPaid && id !== 'all' && id !== 'generic') {
+      showToast('Upgrade to unlock cloud components');
+      return;
+    }
     setActiveProvider(id);
     setVisibleCount(50);
   };
@@ -146,19 +163,32 @@ export default function ToolsTab({
             transition: 'all 0.15s',
           }}
         >All</button>
-        {PROVIDERS.map(p => (
-          <button
-            key={p.id}
-            onClick={() => handleProviderChange(p.id)}
-            style={{
-              padding: '4px 10px', borderRadius: 20, border: 'none', cursor: 'pointer',
-              fontSize: 10, fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0,
-              background: activeProvider === p.id ? p.color : SURFACE,
-              color: activeProvider === p.id ? '#fff' : TEXT_MID,
-              transition: 'all 0.15s',
-            }}
-          >{p.label}</button>
-        ))}
+        {PROVIDERS.map(p => {
+          const isCloudTab = p.id !== 'generic';
+          const isLocked = !isPaid && isCloudTab;
+          return (
+            <button
+              key={p.id}
+              onClick={() => handleProviderChange(p.id)}
+              style={{
+                padding: '4px 10px', borderRadius: 20, border: 'none', cursor: 'pointer',
+                fontSize: 10, fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0,
+                background: activeProvider === p.id ? p.color : SURFACE,
+                color: activeProvider === p.id ? '#fff' : TEXT_MID,
+                opacity: isLocked ? 0.5 : 1,
+                transition: 'all 0.15s',
+                display: 'flex', alignItems: 'center', gap: 3,
+              }}
+            >
+              {p.label}
+              {isLocked && (
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z" />
+                </svg>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {/* Component grid */}
@@ -179,7 +209,7 @@ export default function ToolsTab({
       </div>
 
       {/* Result count + Show more */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: !isPaid ? 8 : 16 }}>
         <span style={{ fontSize: 10, color: TEXT_DIM }}>{filtered.length} components</span>
         {hasMore && (
           <button
@@ -192,6 +222,26 @@ export default function ToolsTab({
           >Show more</button>
         )}
       </div>
+
+      {/* Upgrade banner for free/try users */}
+      {!isPaid && (
+        <div style={{
+          padding: '8px 12px', borderRadius: 10, marginBottom: 16,
+          background: SURFACE, border: `1px solid ${CARD_BORDER}`,
+          display: 'flex', alignItems: 'center', gap: 8,
+        }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill={ACCENT}>
+            <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z" />
+          </svg>
+          <span style={{ fontSize: 10, color: TEXT_MID, flex: 1 }}>
+            Unlock 1800+ cloud components —{' '}
+            <a
+              href="/#/console/billing"
+              style={{ color: ACCENT, fontWeight: 600, textDecoration: 'none' }}
+            >Upgrade</a>
+          </span>
+        </div>
+      )}
 
       <div style={{ fontSize: 9, fontWeight: 600, color: TEXT_DIM, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>Canvas</div>
 

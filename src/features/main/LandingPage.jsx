@@ -1,4 +1,6 @@
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../shared/context/AuthContext';
 import './landing.css';
 import Nav from './components/Nav';
 import Hero from './components/Hero';
@@ -12,6 +14,13 @@ import FAQ from './components/FAQ';
 import Footer from './components/Footer';
 
 export default function LandingPage() {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && user) navigate('/console', { replace: true });
+  }, [user, loading, navigate]);
+
   useEffect(() => {
     const obs = new IntersectionObserver(
       (entries) => {
