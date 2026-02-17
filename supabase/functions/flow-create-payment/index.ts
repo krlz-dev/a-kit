@@ -33,6 +33,10 @@ serve(async (req) => {
       urlReturn: 'https://kit-a.com/#/console/billing',
     });
 
+    if (!result.url || !result.token) {
+      throw new Error(result.message || 'Failed to create payment');
+    }
+
     // Log payment
     await supabaseAdmin.from('flow_payments').insert({
       user_id: user.id,

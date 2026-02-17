@@ -37,6 +37,9 @@ serve(async (req) => {
         email: user.email!,
         externalId: user.id,
       });
+      if (!customer.customerId) {
+        throw new Error(customer.message || 'Failed to create Flow customer');
+      }
       customerId = customer.customerId;
 
       // Save customer ID
@@ -51,6 +54,10 @@ serve(async (req) => {
       customerId,
       url_return: 'https://kit-a.com/#/console/billing?registration=complete',
     });
+
+    if (!result.url || !result.token) {
+      throw new Error(result.message || 'Failed to start card registration');
+    }
 
     return new Response(
       JSON.stringify({ url: result.url, token: result.token }),
