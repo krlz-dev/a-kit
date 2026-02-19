@@ -25,7 +25,7 @@ export function generateSVG(tasks, currentView, startDate, endDate, sidebarWidth
     </linearGradient>`;
   });
   svg += `<marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-    <polygon points="0 0, 10 3.5, 0 7" fill="#4a5c4a"/>
+    <polygon points="0 0, 10 3.5, 0 7" fill="#8a9b8a"/>
   </marker>`;
   svg += '</defs>';
 
@@ -37,7 +37,7 @@ export function generateSVG(tasks, currentView, startDate, endDate, sidebarWidth
   svg += `<line x1="${sidebarWidth}" y1="0" x2="${sidebarWidth}" y2="${height}" stroke="rgba(200,230,0,0.08)" stroke-width="2"/>`;
 
   // Sidebar header
-  svg += `<text x="16" y="30" font-family="'IBM Plex Mono', monospace" font-size="11" font-weight="600" fill="#7a8e7a">TASK NAME</text>`;
+  svg += `<text x="16" y="30" font-family="'IBM Plex Mono', monospace" font-size="11" font-weight="600" fill="#b0c4b0">TASK NAME</text>`;
 
   // Timeline header
   svg += `<rect x="${sidebarWidth}" y="0" width="${totalWidth}" height="${headerHeight}" fill="#0e140e"/>`;
@@ -63,17 +63,17 @@ export function generateSVG(tasks, currentView, startDate, endDate, sidebarWidth
       const displayEnd = monthEnd > endDate ? endDate : monthEnd;
       let dayCount = 0;
       for (let d = new Date(current); d <= displayEnd; d.setDate(d.getDate() + 1)) {
-        svg += `<text x="${xOffset + dayCount * config.cellWidth + config.cellWidth / 2}" y="${headerHeight - 8}" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#4a5c4a" text-anchor="middle">${d.getDate()}</text>`;
+        svg += `<text x="${xOffset + dayCount * config.cellWidth + config.cellWidth / 2}" y="${headerHeight - 8}" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#8a9b8a" text-anchor="middle">${d.getDate()}</text>`;
         dayCount++;
       }
       const monthWidth = dayCount * config.cellWidth;
-      svg += `<text x="${xOffset + monthWidth / 2}" y="18" font-family="'IBM Plex Mono', monospace" font-size="11" font-weight="600" fill="#7a8e7a" text-anchor="middle">${month} ${year}</text>`;
+      svg += `<text x="${xOffset + monthWidth / 2}" y="18" font-family="'IBM Plex Mono', monospace" font-size="11" font-weight="600" fill="#b0c4b0" text-anchor="middle">${month} ${year}</text>`;
       xOffset += monthWidth;
       current = new Date(current.getFullYear(), current.getMonth() + 1, 1);
     }
   } else {
     units.forEach(unit => {
-      svg += `<text x="${xOffset + config.cellWidth / 2}" y="${headerHeight - 8}" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#4a5c4a" text-anchor="middle">${unit.label}</text>`;
+      svg += `<text x="${xOffset + config.cellWidth / 2}" y="${headerHeight - 8}" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#8a9b8a" text-anchor="middle">${unit.label}</text>`;
       xOffset += config.cellWidth;
     });
   }
@@ -122,7 +122,7 @@ export function generateSVG(tasks, currentView, startDate, endDate, sidebarWidth
     const y1 = headerHeight + depIndex * ROW_HEIGHT + ROW_HEIGHT / 2;
     const y2 = headerHeight + index * ROW_HEIGHT + ROW_HEIGHT / 2;
     const midX = (x1 + x2) / 2;
-    svg += `<path d="M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}" fill="none" stroke="#4a5c4a" stroke-width="2" marker-end="url(#arrow)"/>`;
+    svg += `<path d="M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}" fill="none" stroke="#8a9b8a" stroke-width="2" marker-end="url(#arrow)"/>`;
   });
 
   // Bars
@@ -151,9 +151,9 @@ export function generateSVG(tasks, currentView, startDate, endDate, sidebarWidth
       const my = y + ROW_HEIGHT / 2;
       svg += `<rect x="${mx - 10}" y="${my - 10}" width="14" height="14" fill="#f97316" transform="rotate(45 ${mx} ${my})" rx="2"/>`;
     } else if (task.type === 'group') {
-      svg += `<rect x="${x}" y="${y + 18}" width="${barWidth}" height="8" fill="#7a8e7a" rx="2"/>`;
-      svg += `<polygon points="${x},${y + 26} ${x + 4},${y + 26} ${x + 2},${y + 30}" fill="#7a8e7a"/>`;
-      svg += `<polygon points="${x + barWidth},${y + 26} ${x + barWidth - 4},${y + 26} ${x + barWidth - 2},${y + 30}" fill="#7a8e7a"/>`;
+      svg += `<rect x="${x}" y="${y + 18}" width="${barWidth}" height="8" fill="#b0c4b0" rx="2"/>`;
+      svg += `<polygon points="${x},${y + 26} ${x + 4},${y + 26} ${x + 2},${y + 30}" fill="#b0c4b0"/>`;
+      svg += `<polygon points="${x + barWidth},${y + 26} ${x + barWidth - 4},${y + 26} ${x + barWidth - 2},${y + 30}" fill="#b0c4b0"/>`;
     } else {
       const color = task.color || 'blue';
       svg += `<rect x="${x}" y="${y + 10}" width="${barWidth}" height="24" fill="url(#grad-${color})" rx="4"/>`;

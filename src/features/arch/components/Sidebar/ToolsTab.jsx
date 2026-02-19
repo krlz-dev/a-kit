@@ -149,9 +149,9 @@ export default function ToolsTab({
       </div>
 
       {/* Provider tabs */}
-      <div style={{
+      <div className="provider-tabs-scroll" style={{
         display: 'flex', gap: 4, marginBottom: 10, overflowX: 'auto',
-        paddingBottom: 4, scrollbarWidth: 'none',
+        paddingBottom: 4,
       }}>
         <button
           onClick={() => handleProviderChange('all')}

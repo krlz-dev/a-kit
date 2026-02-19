@@ -12,7 +12,7 @@ const S = {
   title: { fontSize: 16, fontWeight: 700, color: '#c8e600', marginRight: 8, textDecoration: 'none' },
   btn: {
     padding: '6px 10px', borderRadius: 8, border: '1px solid rgba(200,230,0,0.1)',
-    background: 'transparent', color: '#7a8e7a', cursor: 'pointer', fontSize: 12,
+    background: 'transparent', color: '#b0c4b0', cursor: 'pointer', fontSize: 12,
     fontWeight: 500, fontFamily: "'IBM Plex Mono', monospace",
     display: 'inline-flex', alignItems: 'center', gap: 4, transition: 'all 0.15s',
     position: 'relative',
@@ -37,7 +37,7 @@ const S = {
     height: 1, background: 'rgba(200,230,0,0.06)', margin: '4px 0',
   },
   dropHeader: {
-    padding: '6px 14px', fontSize: 10, color: '#4a5c4a', textTransform: 'uppercase', letterSpacing: 1,
+    padding: '6px 14px', fontSize: 10, color: '#8a9b8a', textTransform: 'uppercase', letterSpacing: 1,
   },
 };
 

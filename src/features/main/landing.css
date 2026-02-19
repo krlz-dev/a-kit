@@ -36,10 +36,10 @@
 }
 .nav-brand svg { width: 28px; height: 28px; }
 .nav-brand span { font-weight: 600; font-size: 15px; letter-spacing: -0.5px; }
-.nav-brand .ver { color: #4a5c4a; font-weight: 400; font-size: 12px; }
+.nav-brand .ver { color: var(--text-dim); font-weight: 400; font-size: 12px; }
 .nav-links { display: flex; gap: 24px; align-items: center; }
 .nav-links a {
-  color: #7a8e7a; text-decoration: none; font-size: 13px;
+  color: var(--text-mid); text-decoration: none; font-size: 13px;
   transition: color 0.2s;
 }
 .nav-links a:hover { color: #d8e4d8; }
@@ -98,7 +98,7 @@
 .hero h1 .accent { color: #c8e600; }
 .hero p.hero-sub {
   font-size: clamp(15px, 2.5vw, 18px);
-  color: #7a8e7a; max-width: 560px;
+  color: var(--text-mid); max-width: 560px;
   margin-bottom: 40px;
   animation: landingFadeUp 0.6s ease 0.1s both;
 }
@@ -126,7 +126,7 @@
 }
 .preview-label {
   display: flex; align-items: center; gap: 6px;
-  font-size: 12px; font-weight: 600; color: #7a8e7a;
+  font-size: 12px; font-weight: 600; color: var(--text-mid);
   margin-bottom: 14px; text-transform: uppercase; letter-spacing: 1px;
 }
 
@@ -160,7 +160,7 @@
   height: 2px; border-radius: 0 0 2px 2px; opacity: 0.25;
 }
 .arch-node-label {
-  font-size: 10px; font-weight: 600; color: #7a8e7a;
+  font-size: 10px; font-weight: 600; color: var(--text-mid);
   letter-spacing: -0.01em;
 }
 
@@ -172,7 +172,7 @@
   display: flex; align-items: center; gap: 8px;
 }
 .gantt-label {
-  font-size: 10px; color: #7a8e7a; width: 52px;
+  font-size: 10px; color: var(--text-mid); width: 52px;
   text-align: right; flex-shrink: 0;
 }
 .gantt-track {
@@ -201,7 +201,7 @@
   letter-spacing: -1px; margin-bottom: 16px;
 }
 .section-sub {
-  font-size: 15px; color: #7a8e7a; max-width: 520px;
+  font-size: 15px; color: var(--text-mid); max-width: 520px;
   margin-bottom: 56px;
 }
 
@@ -232,12 +232,12 @@
 .feature-card-top .feature-icon { margin-bottom: 0; }
 .feature-badge {
   font-size: 10px; font-weight: 600; text-transform: uppercase;
-  letter-spacing: 1px; color: #4a5c4a;
+  letter-spacing: 1px; color: var(--text-dim);
   padding: 2px 8px; border-radius: 4px;
   border: 1px solid rgba(200, 230, 0, 0.08);
 }
 .feature-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
-.feature-card p { font-size: 13px; color: #7a8e7a; line-height: 1.7; }
+.feature-card p { font-size: 13px; color: var(--text-mid); line-height: 1.7; }
 
 /* Tools Showcase */
 .tools-grid {
@@ -265,7 +265,7 @@
   font-size: 20px; font-weight: 700; margin-bottom: 10px;
   letter-spacing: -0.5px;
 }
-.tool-card p { font-size: 14px; color: #7a8e7a; line-height: 1.7; margin-bottom: 20px; }
+.tool-card p { font-size: 14px; color: var(--text-mid); line-height: 1.7; margin-bottom: 20px; }
 .tool-card .tool-link {
   font-size: 13px; font-weight: 600; color: #c8e600;
   display: inline-flex; align-items: center; gap: 6px;
@@ -305,7 +305,7 @@
 }
 .landing-template-card .icon { font-size: 28px; margin-bottom: 10px; }
 .landing-template-card h4 { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
-.landing-template-card p { font-size: 11px; color: #4a5c4a; }
+.landing-template-card p { font-size: 11px; color: var(--text-dim); }
 
 /* Stack */
 .stack-row {
@@ -320,7 +320,7 @@
   font-size: 13px;
 }
 .stack-chip .tag {
-  font-size: 10px; color: #4a5c4a;
+  font-size: 10px; color: var(--text-dim);
   text-transform: uppercase; letter-spacing: 1px;
 }
 
@@ -364,7 +364,7 @@
 .faq-answer {
   padding: 0 24px 18px;
   font-size: 13px;
-  color: #7a8e7a;
+  color: var(--text-mid);
   line-height: 1.7;
 }
 
@@ -377,7 +377,7 @@
   letter-spacing: -1.5px; margin-bottom: 16px;
 }
 .landing-cta p {
-  font-size: 15px; color: #7a8e7a; margin-bottom: 32px;
+  font-size: 15px; color: var(--text-mid); margin-bottom: 32px;
 }
 
 /* Footer */
@@ -385,7 +385,7 @@
   border-top: 1px solid rgba(200, 230, 0, 0.06);
   padding: 32px 0; text-align: center;
 }
-.landing-footer p { font-size: 12px; color: #4a5c4a; }
+.landing-footer p { font-size: 12px; color: var(--text-dim); }
 .landing-footer a { color: #c8e600; text-decoration: none; }
 .landing-footer a:hover { text-decoration: underline; }
 

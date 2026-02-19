@@ -57,7 +57,7 @@
 .auth-field label {
   font-size: 12px;
   font-weight: 500;
-  color: #7a8e7a;
+  color: var(--text-mid);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -127,7 +127,7 @@
 }
 
 .auth-links a {
-  color: #7a8e7a;
+  color: var(--text-mid);
   text-decoration: none;
   transition: color 0.15s;
 }

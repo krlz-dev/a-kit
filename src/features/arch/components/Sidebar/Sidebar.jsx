@@ -55,7 +55,7 @@ export default function Sidebar({
       </div>
 
       {/* Content */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "12px 12px" }}>
+      <div className="sidebar-scroll" style={{ flex: 1, overflowY: "auto", padding: "12px 12px" }}>
         {sidebarTab === "tools" && (
           <ToolsTab
             nodes={nodes} connections={connections} nodeMap={nodeMap}

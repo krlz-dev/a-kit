@@ -76,15 +76,15 @@ export default function TimelineBody({
             <div key={task.id} style={{
               position: 'absolute', height: 8, top: top + 18,
               left: geo.left, width: geo.width,
-              background: '#7a8e7a', borderRadius: 2, zIndex: 5,
+              background: '#b0c4b0', borderRadius: 2, zIndex: 5,
             }}>
               <span style={{
                 position: 'absolute', bottom: -4, left: 0, width: 8, height: 8,
-                background: '#7a8e7a', clipPath: 'polygon(0 0, 100% 0, 50% 100%)',
+                background: '#b0c4b0', clipPath: 'polygon(0 0, 100% 0, 50% 100%)',
               }} />
               <span style={{
                 position: 'absolute', bottom: -4, right: 0, width: 8, height: 8,
-                background: '#7a8e7a', clipPath: 'polygon(0 0, 100% 0, 50% 100%)',
+                background: '#b0c4b0', clipPath: 'polygon(0 0, 100% 0, 50% 100%)',
               }} />
             </div>
           );
@@ -187,7 +187,7 @@ function DependencyLayer({ tasks, units, cellWidth, currentView, startDate, tota
         key={`${task.id}-${depTask.id}`}
         d={`M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`}
         fill="none"
-        stroke="#4a5c4a"
+        stroke="#8a9b8a"
         strokeWidth="2"
         markerEnd="url(#gantt-arrow)"
       />,
@@ -202,7 +202,7 @@ function DependencyLayer({ tasks, units, cellWidth, currentView, startDate, tota
     >
       <defs>
         <marker id="gantt-arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-          <polygon points="0 0, 10 3.5, 0 7" fill="#4a5c4a" />
+          <polygon points="0 0, 10 3.5, 0 7" fill="#8a9b8a" />
         </marker>
       </defs>
       {paths}

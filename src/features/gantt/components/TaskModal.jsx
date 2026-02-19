@@ -18,11 +18,11 @@ const S = {
   },
   title: { fontSize: 16, fontWeight: 600, color: '#d8e4d8' },
   close: {
-    background: 'none', border: 'none', color: '#7a8e7a', cursor: 'pointer',
+    background: 'none', border: 'none', color: '#b0c4b0', cursor: 'pointer',
     fontSize: 20, fontFamily: 'inherit',
   },
   body: { padding: 20, display: 'flex', flexDirection: 'column', gap: 16 },
-  label: { fontSize: 12, fontWeight: 500, color: '#7a8e7a', marginBottom: 6, display: 'block' },
+  label: { fontSize: 12, fontWeight: 500, color: '#b0c4b0', marginBottom: 6, display: 'block' },
   input: {
     width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid rgba(200,230,0,0.1)',
     background: '#080c08', color: '#d8e4d8', fontSize: 13, fontFamily: "'IBM Plex Mono', monospace",
@@ -165,7 +165,7 @@ export default function TaskModal({ task, tasks, onSave, onDelete, onClose }) {
             </button>
           )}
           <div style={{ flex: 1 }} />
-          <button style={{ ...S.btn, background: 'transparent', color: '#7a8e7a', border: '1px solid rgba(200,230,0,0.1)' }}
+          <button style={{ ...S.btn, background: 'transparent', color: '#b0c4b0', border: '1px solid rgba(200,230,0,0.1)' }}
             onClick={onClose}>
             Cancel
           </button>

@@ -48,7 +48,7 @@ export default function ProjectsTab() {
   const allowNew = canCreateProject(subscription, projects.length);
 
   if (loading) {
-    return <div style={{ color: '#7a8e7a', padding: 20 }}>Loading projects…</div>;
+    return <div style={{ color: '#b0c4b0', padding: 20 }}>Loading projects…</div>;
   }
 
   return (

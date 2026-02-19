@@ -8,21 +8,21 @@ const S = {
   header: {
     height: TIMELINE_HEADER_HEIGHT, borderBottom: '1px solid rgba(200,230,0,0.06)',
     display: 'flex', alignItems: 'center', padding: '0 16px',
-    fontSize: 11, fontWeight: 600, color: '#7a8e7a', textTransform: 'uppercase', letterSpacing: 1,
+    fontSize: 11, fontWeight: 600, color: '#b0c4b0', textTransform: 'uppercase', letterSpacing: 1,
   },
   list: { flex: 1, overflowY: 'auto' },
   row: {
     height: ROW_HEIGHT, display: 'flex', alignItems: 'center', padding: '0 8px 0 16px',
     borderBottom: '1px solid rgba(200,230,0,0.04)', cursor: 'pointer', transition: 'background 0.15s',
   },
-  icon: { width: 20, marginRight: 8, color: '#4a5c4a', display: 'flex', alignItems: 'center' },
+  icon: { width: 20, marginRight: 8, color: '#8a9b8a', display: 'flex', alignItems: 'center' },
   name: {
     flex: 1, fontSize: 13, color: '#d8e4d8', whiteSpace: 'nowrap',
     overflow: 'hidden', textOverflow: 'ellipsis',
   },
   editBtn: {
     padding: '2px 6px', border: '1px solid rgba(200,230,0,0.1)', borderRadius: 6,
-    background: 'transparent', color: '#7a8e7a', cursor: 'pointer', fontSize: 11,
+    background: 'transparent', color: '#b0c4b0', cursor: 'pointer', fontSize: 11,
     fontFamily: "'IBM Plex Mono', monospace", display: 'none',
   },
   assignee: {

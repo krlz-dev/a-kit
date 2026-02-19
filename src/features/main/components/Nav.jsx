@@ -28,7 +28,7 @@ export default function Nav() {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" strokeWidth="2"><rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="12" height="4" rx="1"/><rect x="3" y="16" width="15" height="4" rx="1"/></svg>
                 Try Gantt
               </a>
-              <a href="#/login" className="nav-tool-link" style={{ color: '#7a8e7a' }}>
+              <a href="#/login" className="nav-tool-link" style={{ color: '#b0c4b0' }}>
                 Sign in
               </a>
             </>

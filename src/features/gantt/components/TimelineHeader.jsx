@@ -8,12 +8,12 @@ const S = {
   },
   monthGroup: { textAlign: 'center', borderRight: '1px solid rgba(200,230,0,0.06)' },
   monthName: {
-    fontSize: 11, fontWeight: 600, color: '#7a8e7a', padding: '4px 0',
+    fontSize: 11, fontWeight: 600, color: '#b0c4b0', padding: '4px 0',
     borderBottom: '1px solid rgba(200,230,0,0.04)',
   },
   days: { display: 'flex' },
   day: {
-    flex: 1, textAlign: 'center', fontSize: 10, color: '#4a5c4a', padding: '4px 0',
+    flex: 1, textAlign: 'center', fontSize: 10, color: '#8a9b8a', padding: '4px 0',
   },
   weekend: { background: 'rgba(200,230,0,0.03)', color: '#3a4a3a' },
   today: { background: 'rgba(200,230,0,0.08)', color: '#c8e600', fontWeight: 600 },

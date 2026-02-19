@@ -48,7 +48,7 @@ export default function BillingTab() {
     setActionLoading('');
   };
 
-  if (loading) return <div style={{ color: '#7a8e7a' }}>Loading billing…</div>;
+  if (loading) return <div style={{ color: '#b0c4b0' }}>Loading billing…</div>;
 
   const plan = sub?.plan || 'free';
   const status = sub?.status || 'active';
@@ -98,7 +98,7 @@ export default function BillingTab() {
               <div className="billing-card">
                 <div className="billing-card-price">$2,000 CLP</div>
                 {formatLocalPrice(2000, currencyInfo) && (
-                  <div style={{ fontSize: 12, color: '#7a8e7a', marginTop: 2 }}>{formatLocalPrice(2000, currencyInfo)}</div>
+                  <div style={{ fontSize: 12, color: '#b0c4b0', marginTop: 2 }}>{formatLocalPrice(2000, currencyInfo)}</div>
                 )}
                 <div className="billing-card-period">per month</div>
                 <ul className="billing-card-features">
@@ -128,7 +128,7 @@ export default function BillingTab() {
               }}>Limited</div>
               <div className="billing-card-price">$100,000 CLP</div>
               {formatLocalPrice(100000, currencyInfo) && (
-                <div style={{ fontSize: 12, color: '#7a8e7a', marginTop: 2 }}>{formatLocalPrice(100000, currencyInfo)}</div>
+                <div style={{ fontSize: 12, color: '#b0c4b0', marginTop: 2 }}>{formatLocalPrice(100000, currencyInfo)}</div>
               )}
               <div className="billing-card-period">one-time payment</div>
               <div style={{
