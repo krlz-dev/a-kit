@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { ACCENT, BG, TEXT, TEXT_DIM, TEXT_MID, SURFACE, CARD_BORDER, CONN_COLORS, COMPONENTS, CLOUD_COMPONENTS, PROVIDERS, DIVIDER } from '../../constants';
-import { exportAsPNG, exportAsJPG, exportAsGIF, exportAsWebM } from '../../utils/exportCanvas';
+import { CANVAS_PRESETS } from '../../utils/uid';
+import { exportAsPNG, exportAsJPG, exportAsGIF, exportAsPDF } from '../../utils/exportCanvas';
 import { useAuth } from '../../../../shared/context/AuthContext';
 import { fetchSubscription } from '../../../../shared/lib/subscriptionApi';
 import NodeIcon from '../NodeIcon';
@@ -38,6 +39,7 @@ export default function ToolsTab({
   nodes, connections, nodeMap,
   selected, selectedConn, selectedNode, selectedConnObj,
   connectMode, animating, speed, connColorIdx, undoStack, redoStack,
+  canvasSize, onSetCanvasSize,
   onSetEditingLabel, onToggleConnect, onUnlinkSelected, onDeleteSelected,
   onSelectConn, onRemoveConn, onToggleConnDirection,
   onConnLabelChange,
@@ -50,6 +52,8 @@ export default function ToolsTab({
   const { user } = useAuth();
   const [isPaid, setIsPaid] = useState(false);
   const [exporting, setExporting] = useState(null);
+  const [exportProgress, setExportProgress] = useState(0);
+  const [exportScale, setExportScale] = useState(2);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeProvider, setActiveProvider] = useState('all');
   const [visibleCount, setVisibleCount] = useState(50);
@@ -65,14 +69,16 @@ export default function ToolsTab({
 
   const doExport = async (type, fn) => {
     setExporting(type);
+    setExportProgress(0);
     showToast(`Exporting ${type.toUpperCase()}…`);
     try {
-      await fn((p) => {});
+      await fn((p) => setExportProgress(p));
       showToast(`Exported as ${type.toUpperCase()}`);
     } catch (err) {
       showToast(err.message || 'Export failed');
     }
     setExporting(null);
+    setExportProgress(0);
   };
 
   const filtered = useMemo(() => {
@@ -278,6 +284,27 @@ export default function ToolsTab({
             <div style={{ fontSize: 9, color: TEXT_DIM, marginTop: 2 }}>Links</div>
           </div>
         </div>
+        <div style={{ marginTop: 8 }}>
+          <div style={{ fontSize: 9, color: TEXT_DIM, marginBottom: 4, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Canvas Size</div>
+          <select
+            value={`${canvasSize.w}x${canvasSize.h}`}
+            onChange={(e) => {
+              const preset = CANVAS_PRESETS.find(p => `${p.w}x${p.h}` === e.target.value);
+              if (preset) onSetCanvasSize({ w: preset.w, h: preset.h });
+            }}
+            style={{
+              width: '100%', padding: '6px 8px', borderRadius: 8,
+              border: `1px solid ${CARD_BORDER}`, background: SURFACE,
+              color: TEXT, fontSize: 11, outline: 'none',
+              fontFamily: "'IBM Plex Mono', monospace",
+              cursor: 'pointer',
+            }}
+          >
+            {CANVAS_PRESETS.map(p => (
+              <option key={`${p.w}x${p.h}`} value={`${p.w}x${p.h}`}>{p.label}</option>
+            ))}
+          </select>
+        </div>
       </Section>
 
       <Section label="Controls" open={openSections.controls} onToggle={() => toggle('controls')}>
@@ -338,28 +365,43 @@ export default function ToolsTab({
           </button>
         </div>
         <div style={{ fontSize: 9, fontWeight: 600, color: TEXT_DIM, textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: 12, marginBottom: 8 }}>Export As</div>
+        <div style={{ display: 'flex', gap: 4, marginBottom: 8 }}>
+          {[1, 2, 3].map(s => (
+            <button key={s} onClick={() => setExportScale(s)} style={{
+              flex: 1, padding: '4px 0', borderRadius: 8, border: `1px solid ${exportScale === s ? ACCENT : CARD_BORDER}`,
+              background: exportScale === s ? `${ACCENT}18` : SURFACE,
+              color: exportScale === s ? ACCENT : TEXT_MID,
+              fontSize: 11, fontWeight: 600, cursor: 'pointer',
+              fontFamily: "'IBM Plex Mono', monospace",
+              transition: 'all 0.15s',
+            }}>{s}x</button>
+          ))}
+        </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3 }}>
-          <button className="sidebar-btn" onClick={() => doExport('png', exportAsPNG)} disabled={nodes.length === 0 || exporting}>
+          <button className="sidebar-btn" onClick={() => doExport('png', () => exportAsPNG({ scale: exportScale }))} disabled={nodes.length === 0 || exporting}>
             <svg width="15" height="15" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" fill="currentColor" /></svg>
             {exporting === 'png' ? 'Exporting…' : 'PNG'}
           </button>
-          <button className="sidebar-btn" onClick={() => doExport('jpg', exportAsJPG)} disabled={nodes.length === 0 || exporting}>
+          <button className="sidebar-btn" onClick={() => doExport('jpg', () => exportAsJPG({ scale: exportScale }))} disabled={nodes.length === 0 || exporting}>
             <svg width="15" height="15" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" fill="currentColor" /></svg>
             {exporting === 'jpg' ? 'Exporting…' : 'JPG'}
           </button>
-          <button className="sidebar-btn" onClick={() => doExport('gif', exportAsGIF)} disabled={nodes.length === 0 || exporting}>
+          <button className="sidebar-btn" onClick={() => doExport('gif', (p) => exportAsGIF({ scale: exportScale, onProgress: p }))} disabled={nodes.length === 0 || exporting}>
             <svg width="15" height="15" viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z" fill="currentColor" /></svg>
             {exporting === 'gif' ? 'Exporting…' : 'GIF'}
           </button>
-          <button className="sidebar-btn" onClick={() => doExport('webm', exportAsWebM)} disabled={nodes.length === 0 || exporting}>
-            <svg width="15" height="15" viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z" fill="currentColor" /></svg>
-            {exporting === 'webm' ? 'Exporting…' : 'WebM'}
+          <button className="sidebar-btn" onClick={() => doExport('pdf', () => exportAsPDF({ scale: exportScale }))} disabled={nodes.length === 0 || exporting}>
+            <svg width="15" height="15" viewBox="0 0 24 24"><path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7h3v1.5zM9 9.5h1v-1H9v1zM4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm10 5.5h1v-3h-1v3z" fill="currentColor" /></svg>
+            {exporting === 'pdf' ? 'Exporting…' : 'PDF'}
           </button>
         </div>
         {exporting && (
           <div style={{ marginTop: 6, fontSize: 10, color: ACCENT, display: 'flex', alignItems: 'center', gap: 6 }}>
             <div style={{ width: 6, height: 6, borderRadius: '50%', background: ACCENT, animation: 'dotPulse 1s ease infinite' }} />
-            {exporting === 'gif' || exporting === 'webm' ? 'Capturing frames…' : 'Processing…'}
+            {exporting === 'gif' ? 'Capturing frames…' : 'Processing…'}
+            {exporting === 'gif' && (
+              <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 600 }}>{exportProgress}%</span>
+            )}
           </div>
         )}
       </Section>

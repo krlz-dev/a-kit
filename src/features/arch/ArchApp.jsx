@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { BG, TEXT, ACCENT, CONN_COLORS, TEMPLATES } from './constants';
-import { uid, cuid, NODE_W, NODE_H, GROUP_W, GROUP_H, CANVAS_W, CANVAS_H } from './utils/uid';
+import { uid, cuid, NODE_W, NODE_H, GROUP_W, GROUP_H, CANVAS_W, CANVAS_H, CANVAS_PRESETS } from './utils/uid';
 import { useToast } from '../../shared/hooks/useToast';
 import { useUndo } from '../../shared/hooks/useUndo';
 import { useKeyboardShortcuts } from '../../shared/hooks/useKeyboardShortcuts';
@@ -31,6 +31,7 @@ export default function ArchApp() {
   const [editingLabel, setEditingLabel] = useState(null);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
+  const [canvasSize, setCanvasSize] = useState({ w: CANVAS_W, h: CANVAS_H });
   const [isPanning, setIsPanning] = useState(false);
   const [spaceHeld, setSpaceHeld] = useState(false);
   const [isTransforming, setIsTransforming] = useState(false);
@@ -54,12 +55,13 @@ export default function ArchApp() {
   useEffect(() => {
     if (isCloud || user) return;
     const tpl = TEMPLATES[0];
-    const { nodes: n, connections: c } = deserializeDesign(
+    const { nodes: n, connections: c, canvasSize: cs } = deserializeDesign(
       { name: tpl.name, nodes: tpl.nodes, conns: tpl.conns },
-      { center: true }
+      { center: true, canvasW: canvasSize.w, canvasH: canvasSize.h }
     );
     setNodes(n);
     setConnections(c);
+    if (cs) setCanvasSize(cs);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Cloud project loading
@@ -68,9 +70,10 @@ export default function ArchApp() {
     fetchProject(projectId).then(project => {
       if (project?.data) {
         const design = project.data;
-        const { nodes: n, connections: c } = deserializeDesign(design);
+        const { nodes: n, connections: c, canvasSize: cs } = deserializeDesign(design);
         setNodes(n);
         setConnections(c);
+        if (cs) setCanvasSize(cs);
       }
       setCloudLoaded(true);
     }).catch(() => {
@@ -84,16 +87,25 @@ export default function ArchApp() {
     if (!isCloud || !cloudLoaded) return;
     clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
-      const design = serializeDesign('cloud', nodes, connections);
+      const design = serializeDesign('cloud', nodes, connections, canvasSize);
       updateProjectData(projectId, design).catch(() => {});
     }, 2000);
     return () => clearTimeout(saveTimer.current);
-  }, [nodes, connections, isCloud, cloudLoaded, projectId]);
+  }, [nodes, connections, canvasSize, isCloud, cloudLoaded, projectId]);
 
   const markTransforming = useCallback(() => {
     setIsTransforming(true);
     clearTimeout(transformTimer.current);
     transformTimer.current = setTimeout(() => setIsTransforming(false), 150);
+  }, []);
+
+  const onSetCanvasSize = useCallback((size) => {
+    setCanvasSize(size);
+    setNodes(prev => prev.map(n => ({
+      ...n,
+      x: Math.min(n.x, Math.max(0, size.w - n.w)),
+      y: Math.min(n.y, Math.max(0, size.h - n.h)),
+    })));
   }, []);
 
   const resetSelection = useCallback(() => {
@@ -113,11 +125,11 @@ export default function ArchApp() {
   useEffect(() => {
     const el = canvasRef.current;
     if (!el) return;
-    const x = (el.clientWidth - CANVAS_W) / 2;
-    const y = (el.clientHeight - CANVAS_H) / 2;
+    const x = (el.clientWidth - canvasSize.w) / 2;
+    const y = (el.clientHeight - canvasSize.h) / 2;
     panRef.current = { x, y };
     setPan({ x, y });
-  }, []);
+  }, [canvasSize]);
 
   useEffect(() => {
     const onKeyDown = (e) => {
@@ -300,8 +312,8 @@ export default function ArchApp() {
     setNodes(p => {
       const dragNode = p.find(n => n.id === dragging);
       if (!dragNode) return p;
-      const newX = Math.max(0, Math.min((e.clientX - rect.left - px) / z - dragOff.current.x, CANVAS_W - dragNode.w));
-      const newY = Math.max(0, Math.min((e.clientY - rect.top - py) / z - dragOff.current.y, CANVAS_H - dragNode.h));
+      const newX = Math.max(0, Math.min((e.clientX - rect.left - px) / z - dragOff.current.x, canvasSize.w - dragNode.w));
+      const newY = Math.max(0, Math.min((e.clientY - rect.top - py) / z - dragOff.current.y, canvasSize.h - dragNode.h));
       const children = groupChildren.current;
       if (children.length === 0) {
         return p.map(n => n.id === dragging ? { ...n, x: newX, y: newY } : n);
@@ -372,13 +384,14 @@ export default function ArchApp() {
 
   const loadDesign = useCallback((design, opts) => {
     pushUndo(nodes, connections);
-    const { nodes: newNodes, connections: newConns } = deserializeDesign(design, opts);
+    const { nodes: newNodes, connections: newConns, canvasSize: cs } = deserializeDesign(design, { ...opts, canvasW: canvasSize.w, canvasH: canvasSize.h });
     setNodes(newNodes);
     setConnections(newConns);
+    if (cs) setCanvasSize(cs);
     setSelected(null);
     setSelectedConn(null);
     showToast(`Loaded: ${design.name}`);
-  }, [nodes, connections, pushUndo, showToast]);
+  }, [nodes, connections, canvasSize, pushUndo, showToast]);
 
   const loadTemplate = useCallback((tpl) => {
     loadDesign({ name: tpl.name, nodes: tpl.nodes, conns: tpl.conns }, { center: true });
@@ -386,10 +399,10 @@ export default function ArchApp() {
 
   const onExportDesign = useCallback(() => {
     if (nodes.length === 0) return;
-    const design = serializeDesign('Untitled', nodes, connections);
+    const design = serializeDesign('Untitled', nodes, connections, canvasSize);
     exportDesignAsJSON(design);
     showToast("Exported as JSON");
-  }, [nodes, connections, showToast]);
+  }, [nodes, connections, canvasSize, showToast]);
 
   const onImportDesign = useCallback(() => {
     importDesignFromFile()
@@ -456,6 +469,7 @@ export default function ArchApp() {
         selectedNode={selectedNode} selectedConnObj={selectedConnObj}
         connectMode={connectMode} animating={animating} speed={speed}
         connColorIdx={connColorIdx} undoStack={undoStack} redoStack={redoStack}
+        canvasSize={canvasSize} onSetCanvasSize={onSetCanvasSize}
         onSetEditingLabel={setEditingLabel}
         onToggleConnect={onToggleConnect}
         onUnlinkSelected={unlinkSelected}
@@ -478,7 +492,7 @@ export default function ArchApp() {
         pushUndo={pushUndo} showToast={showToast}
       />
       <Canvas
-        canvasRef={canvasRef} nodes={nodes} connections={connections} nodeMap={nodeMap}
+        canvasRef={canvasRef} canvasSize={canvasSize} nodes={nodes} connections={connections} nodeMap={nodeMap}
         selected={selected} selectedConn={selectedConn} dragging={dragging}
         connectMode={connectMode} editingLabel={editingLabel}
         animating={animating} speed={speed} toast={toast}

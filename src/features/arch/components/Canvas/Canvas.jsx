@@ -1,11 +1,10 @@
 import { ACCENT, TEXT_DIM } from '../../constants';
-import { CANVAS_W, CANVAS_H } from '../../utils/uid';
 import ConnectionLayer from './ConnectionLayer';
 import CanvasNode from './CanvasNode';
 import Toast from '../../../../shared/components/Toast';
 
 export default function Canvas({
-  canvasRef, nodes, connections, nodeMap,
+  canvasRef, canvasSize, nodes, connections, nodeMap,
   selected, selectedConn, dragging, connectMode, editingLabel,
   animating, speed, toast,
   pan, zoom, isPanning, spaceHeld, isTransforming,
@@ -30,7 +29,7 @@ export default function Canvas({
         {/* Pannable canvas */}
         <div data-canvas-content style={{
           position: "absolute",
-          width: CANVAS_W, height: CANVAS_H,
+          width: canvasSize.w, height: canvasSize.h,
           transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
           transformOrigin: "0 0",
           willChange: isTransforming ? "transform" : "auto",

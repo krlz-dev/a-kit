@@ -11,7 +11,7 @@ export default defineConfig({
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
           supabase: ['@supabase/supabase-js'],
-          export: ['html2canvas', 'gif.js'],
+          export: ['html2canvas-pro', 'fix-webm-duration', 'gif.js'],
         },
       },
     },

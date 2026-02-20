@@ -7,6 +7,7 @@ export default function Sidebar({
   nodes, connections, nodeMap,
   selected, selectedConn, selectedNode, selectedConnObj,
   connectMode, animating, speed, connColorIdx, undoStack, redoStack,
+  canvasSize, onSetCanvasSize,
   onSetEditingLabel, onToggleConnect, onUnlinkSelected, onDeleteSelected,
   onSelectConn, onRemoveConn, onToggleConnDirection,
   onConnLabelChange,
@@ -63,6 +64,7 @@ export default function Sidebar({
             selectedNode={selectedNode} selectedConnObj={selectedConnObj}
             connectMode={connectMode} animating={animating} speed={speed}
             connColorIdx={connColorIdx} undoStack={undoStack} redoStack={redoStack}
+            canvasSize={canvasSize} onSetCanvasSize={onSetCanvasSize}
             onSetEditingLabel={onSetEditingLabel} onToggleConnect={onToggleConnect}
             onUnlinkSelected={onUnlinkSelected} onDeleteSelected={onDeleteSelected}
             onSelectConn={onSelectConn} onRemoveConn={onRemoveConn}

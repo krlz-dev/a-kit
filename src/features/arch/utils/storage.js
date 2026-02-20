@@ -31,7 +31,7 @@ export function deleteDesign(savedAt) {
 
 /* ── Serialize (state → portable JSON) ── */
 
-export function serializeDesign(name, nodes, connections) {
+export function serializeDesign(name, nodes, connections, canvasSize) {
   const idToIdx = {};
   nodes.forEach((n, i) => { idToIdx[n.id] = i; });
 
@@ -52,18 +52,26 @@ export function serializeDesign(name, nodes, connections) {
     return entry;
   });
 
-  return {
+  const result = {
     version: 1,
     name,
     savedAt: Date.now(),
     nodes: serializedNodes,
     connections: serializedConns,
   };
+  if (canvasSize) {
+    result.canvasW = canvasSize.w;
+    result.canvasH = canvasSize.h;
+  }
+  return result;
 }
 
 /* ── Deserialize (portable JSON → state) ── */
 
-export function deserializeDesign(design, { center = false } = {}) {
+export function deserializeDesign(design, { center = false, canvasW = CANVAS_W, canvasH = CANVAS_H } = {}) {
+  const designW = design.canvasW || canvasW;
+  const designH = design.canvasH || canvasH;
+
   const newNodes = design.nodes.map(n => {
     const comp = COMPONENT_MAP.get(n.type);
     const isGroup = n.type === 'group';
@@ -111,12 +119,12 @@ export function deserializeDesign(design, { center = false } = {}) {
     const maxX = Math.max(...newNodes.map(n => n.x + n.w));
     const minY = Math.min(...newNodes.map(n => n.y));
     const maxY = Math.max(...newNodes.map(n => n.y + n.h));
-    const dx = (CANVAS_W - (maxX - minX)) / 2 - minX;
-    const dy = (CANVAS_H - (maxY - minY)) / 2 - minY;
+    const dx = (designW - (maxX - minX)) / 2 - minX;
+    const dy = (designH - (maxY - minY)) / 2 - minY;
     newNodes.forEach(n => { n.x += dx; n.y += dy; });
   }
 
-  return { nodes: newNodes, connections: newConns };
+  return { nodes: newNodes, connections: newConns, canvasSize: { w: designW, h: designH } };
 }
 
 /* ── Export as .json file ── */
