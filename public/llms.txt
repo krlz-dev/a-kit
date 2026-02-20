@@ -1,6 +1,6 @@
 # kit-a
 
-> A browser-based toolkit for system architecture diagrams and Gantt project planning. Drag, connect, plan, export — no sign-up, no bloat.
+> A browser-based toolkit for system architecture diagrams and Gantt project planning. Drag, connect, plan, export — try free, upgrade to premium.
 
 kit-a provides two tools: an architecture diagram editor with 14 node types, smart connections, and starter templates; and an interactive Gantt chart planner with 6 view modes, task dependencies, and multi-format export.
 
@@ -17,8 +17,5 @@ kit-a provides two tools: an architecture diagram editor with 14 node types, sma
 - 6 architecture templates: 3-Tier Web App, Microservices, Event-Driven, Auth Flow, Auth0 Integration, CI/CD Pipeline
 - 6 Gantt view modes: days, weeks, months, quarters, years, full timeline
 - Export formats: PNG (2x), JPG, animated GIF, WebM video
-- Save/load via localStorage and JSON import/export
-
-## Optional
-
-- [GitHub Repository](https://github.com/krlz-dev/a-kit): Source code (MIT License)
+- Cloud storage with account, export/import as JSON
+- Free plan: 1 project; Premium: unlimited projects + full cloud provider catalog (1,700+ icons)

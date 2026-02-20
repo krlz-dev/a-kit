@@ -7,12 +7,12 @@ export default function Hero() {
     <section className="hero">
       <div className="hero-badge">
         <span className="dot" />
-        Open Source &middot; Browser-Based &middot; Zero Config
+        Browser-Based &middot; Zero Config &middot; Instant Setup
       </div>
       <h1>Architecture &amp; planning,<br /><span className="accent">wired different.</span></h1>
       <p className="hero-sub">
         A lightweight toolkit for system architecture diagrams and project timelines.
-        Drag, connect, plan, export. No sign-up. No bloat.
+        Drag, connect, plan, export. Try free, upgrade to unlock the full experience.
       </p>
       <div className="hero-actions">
         {user ? (

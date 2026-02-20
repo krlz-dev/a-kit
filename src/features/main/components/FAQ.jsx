@@ -2,22 +2,27 @@ const FAQ_ITEMS = [
   {
     question: 'What is kit-a?',
     answer:
-      'kit-a is a browser-based toolkit for creating system architecture diagrams and Gantt project timelines. Try the tools instantly with no sign-up, or create a free account to save your projects in the cloud.',
+      'kit-a is a browser-based toolkit for creating system architecture diagrams and Gantt project timelines. Create a free account to try it out, and upgrade to premium for the full experience.',
   },
   {
-    question: 'Do I need an account?',
+    question: 'Is kit-a free?',
     answer:
-      'You can try both tools without an account — no sign-up required. To save projects and access them from anywhere, create a free account. The free plan includes 1 project with full cloud storage.',
+      'You can create a free account to explore the tools and save 1 project. Premium plans unlock unlimited projects, the full cloud provider catalog (1,700+ icons from AWS, Azure, GCP, and M365), and priority access to new features.',
   },
   {
-    question: 'What are the paid plans?',
+    question: 'What are the premium plans?',
     answer:
-      'The free plan gives you 1 project. For unlimited projects, choose Monthly at $2,000 CLP/month or Lifetime at $100,000 CLP (one-time, available for a limited time). Both plans include full access to all features and cloud storage. Prices are in CLP (Chilean Pesos). Approximate local currency equivalents are shown on the billing page.',
+      'Monthly at $2,000 CLP/month or Lifetime at $100,000 CLP (one-time, limited availability). Both include unlimited projects, full cloud provider catalog, and cloud storage. Prices are in CLP (Chilean Pesos) with approximate local equivalents shown on the billing page.',
+  },
+  {
+    question: 'What do I get with premium?',
+    answer:
+      'Premium unlocks unlimited projects, the cloud provider catalog with 1,700+ icons from AWS, Azure, GCP, and Microsoft 365, and all future features as they launch.',
   },
   {
     question: 'What types of architecture diagrams can I create?',
     answer:
-      'kit-a supports 14 node types including Client, Server, Database, API, Auth, Queue, Cache, Cloud, Bucket, Function, Monitor, Mobile, Web App, and Group. You can connect them with labeled, colored, directional or bidirectional connections with animated flow visualization.',
+      'kit-a includes 14 node types: Client, Server, Database, API, Auth, Queue, Cache, Cloud, Bucket, Function, Monitor, Mobile, Web App, and Group. Connect them with labeled, colored, directional or bidirectional connections with animated flow visualization. Premium users also get access to the full cloud provider catalog.',
   },
   {
     question: 'Does kit-a include starter templates?',
@@ -27,7 +32,7 @@ const FAQ_ITEMS = [
   {
     question: 'How does the Gantt chart planner work?',
     answer:
-      'The Gantt planner offers 6 view modes (days, weeks, months, quarters, years, full timeline). You can drag bars to reschedule, resize to adjust duration, define task dependencies, set milestones, track progress, and color-code by team.',
+      'The Gantt planner offers 6 view modes (days, weeks, months, quarters, years, full timeline). Drag bars to reschedule, resize to adjust duration, define task dependencies, set milestones, track progress, and color-code by team.',
   },
   {
     question: 'What export formats are supported?',
@@ -37,7 +42,7 @@ const FAQ_ITEMS = [
   {
     question: 'How is my data stored?',
     answer:
-      'When you try the tools without an account, nothing is saved — it\'s a live demo. With an account, your projects are stored securely in the cloud and accessible from any device via the Console.',
+      'Your projects are stored securely in the cloud and accessible from any device via the Console. All accounts include cloud storage — premium plans unlock unlimited projects.',
   },
 ];
 

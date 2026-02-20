@@ -3,11 +3,11 @@ export default function CTA() {
     <section className="landing-cta reveal">
       <div className="landing-container">
         <h2>Design systems.<br />Plan timelines.<br /><span style={{ color: '#c8e600' }}>Ship faster.</span></h2>
-        <p>Free. Open source. Runs in your browser. Forever.</p>
+        <p>Try it free. Upgrade when you&apos;re ready. Runs in your browser.</p>
         <div className="hero-actions" style={{ justifyContent: 'center' }}>
           <a href="#/register" className="landing-btn landing-btn-primary">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M13 12H3"/></svg>
-            Get Started Free
+            Create Free Account
           </a>
           <a href="#/arch" className="landing-btn landing-btn-ghost">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>

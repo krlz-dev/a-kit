@@ -8,7 +8,7 @@ import ToolsShowcase from './components/ToolsShowcase';
 import Features from './components/Features';
 import ComponentTypes from './components/ComponentTypes';
 import Templates from './components/Templates';
-import Stack from './components/Stack';
+
 import CTA from './components/CTA';
 import FAQ from './components/FAQ';
 import Footer from './components/Footer';
@@ -48,7 +48,6 @@ export default function LandingPage() {
           <Features />
           <ComponentTypes />
           <Templates />
-          <Stack />
           <FAQ />
           <CTA />
         </article>

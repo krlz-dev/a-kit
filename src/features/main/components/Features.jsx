@@ -64,7 +64,7 @@ const FEATURES = [
     ),
     iconBg: 'rgba(16,185,129,0.12)',
     title: 'Save & Load',
-    desc: 'Persist to localStorage, export/import as JSON. Your work lives in your browser \u2014 no account required, ever.',
+    desc: 'Cloud storage with your account. Export and import as JSON. Access your projects from any device via the Console.',
   },
 ];
 
@@ -74,7 +74,7 @@ export default function Features() {
       <div className="landing-container reveal">
         <div className="section-label">// features</div>
         <h2 className="section-title">Everything you need.<br />Nothing you don&apos;t.</h2>
-        <p className="section-sub">Built for engineers who think in systems. No learning curve, no enterprise pricing, no 200MB Electron app.</p>
+        <p className="section-sub">Built for engineers who think in systems. No learning curve, no heavy desktop app. Simple pricing, powerful tools.</p>
 
         <div className="features-grid">
           {FEATURES.map(f => (
