@@ -2,10 +2,11 @@ import { ACCENT, CARD_BG, CARD_BORDER, TEXT, TEXT_MID } from '../../constants';
 import NodeIcon from '../NodeIcon';
 
 export default function CanvasNode({
-  node, selected, dragging, connectMode, editingLabel,
+  node, selected, dragging, connectMode, editingLabel, isMultiSelected,
   onPointerDown, onDoubleClick, onLabelChange, onEditDone, onResizeStart,
 }) {
   const isSel = selected === node.id;
+  const isHighlighted = isSel || isMultiSelected;
   const isTarget = connectMode && connectMode !== node.id;
   const isSrc = connectMode === node.id;
   const isGroup = node.type === 'group';
@@ -18,13 +19,13 @@ export default function CanvasNode({
         onDoubleClick={onDoubleClick}
         style={{
           position: "absolute", left: node.x, top: node.y, width: node.w, height: node.h,
-          zIndex: isSel ? 6 : 5,
+          zIndex: isHighlighted ? 6 : 5,
           background: `${node.color}0a`,
-          border: `2px dashed ${isSrc ? ACCENT : isTarget ? `${ACCENT}44` : isSel ? `${node.color}80` : `${node.color}25`}`,
+          border: `2px dashed ${isSrc ? ACCENT : isTarget ? `${ACCENT}44` : isHighlighted ? `${node.color}80` : `${node.color}25`}`,
           borderRadius: 16,
           cursor: dragging === node.id ? "grabbing" : isTarget ? "pointer" : "grab",
           transition: dragging === node.id ? "none" : "border-color 0.2s, box-shadow 0.2s",
-          boxShadow: isSel ? `0 0 0 1px ${node.color}25, 0 4px 20px ${node.color}10` : "none",
+          boxShadow: isHighlighted ? `0 0 0 1px ${node.color}25, 0 4px 20px ${node.color}10` : "none",
           touchAction: "none",
         }}
       >
@@ -68,7 +69,7 @@ export default function CanvasNode({
           style={{
             position: "absolute", bottom: 0, right: 0,
             width: 18, height: 18, cursor: "nwse-resize",
-            opacity: isSel ? 0.7 : 0.2,
+            opacity: isHighlighted ? 0.7 : 0.2,
             transition: "opacity 0.2s",
           }}
         >
@@ -83,6 +84,14 @@ export default function CanvasNode({
             background: ACCENT, animation: "dotPulse 1s ease infinite", boxShadow: `0 0 10px ${ACCENT}`,
           }} />
         )}
+
+        {isMultiSelected && (
+          <div style={{
+            position: "absolute", inset: -1, borderRadius: 16,
+            border: `1.5px solid ${ACCENT}40`,
+            pointerEvents: "none",
+          }} />
+        )}
       </div>
     );
   }
@@ -95,17 +104,17 @@ export default function CanvasNode({
       onDoubleClick={onDoubleClick}
       style={{
         position: "absolute", left: node.x, top: node.y, width: node.w, minHeight: node.h,
-        zIndex: isSel || dragging === node.id ? 15 : 10,
+        zIndex: isHighlighted || dragging === node.id ? 15 : 10,
         background: CARD_BG, backdropFilter: "blur(12px)",
-        border: `1.5px solid ${isSrc ? ACCENT : isTarget ? `${ACCENT}44` : isSel ? `${node.color}70` : CARD_BORDER}`,
+        border: `1.5px solid ${isSrc ? ACCENT : isTarget ? `${ACCENT}44` : isHighlighted ? `${node.color}70` : CARD_BORDER}`,
         borderRadius: 16, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 5,
         padding: "10px 6px",
         cursor: dragging === node.id ? "grabbing" : isTarget ? "pointer" : "grab",
         transition: dragging === node.id ? "none" : "all 0.2s ease",
-        boxShadow: isSel
+        boxShadow: isHighlighted
           ? `0 0 0 1px ${node.color}30, 0 4px 20px ${node.color}15`
           : isTarget ? `0 0 16px ${ACCENT}12` : "0 2px 12px rgba(0,0,0,0.3)",
-        transform: isTarget ? "scale(1.06)" : isSel && dragging !== node.id ? "scale(1.03)" : "scale(1)",
+        transform: isTarget ? "scale(1.06)" : isHighlighted && dragging !== node.id ? "scale(1.03)" : "scale(1)",
         touchAction: "none",
       }}
     >
@@ -138,6 +147,14 @@ export default function CanvasNode({
         <div style={{
           position: "absolute", top: -5, right: -5, width: 12, height: 12, borderRadius: "50%",
           background: ACCENT, animation: "dotPulse 1s ease infinite", boxShadow: `0 0 10px ${ACCENT}`,
+        }} />
+      )}
+
+      {isMultiSelected && (
+        <div style={{
+          position: "absolute", inset: -1, borderRadius: 16,
+          border: `1.5px solid ${ACCENT}40`,
+          pointerEvents: "none",
         }} />
       )}
     </div>

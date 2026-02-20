@@ -8,6 +8,7 @@ export default function Sidebar({
   selected, selectedConn, selectedNode, selectedConnObj,
   connectMode, animating, speed, connColorIdx, undoStack, redoStack,
   canvasSize, onSetCanvasSize,
+  multiSelected, onFocusNode, onDeleteMultiSelected,
   onSetEditingLabel, onToggleConnect, onUnlinkSelected, onDeleteSelected,
   onSelectConn, onRemoveConn, onToggleConnDirection,
   onConnLabelChange,
@@ -65,6 +66,8 @@ export default function Sidebar({
             connectMode={connectMode} animating={animating} speed={speed}
             connColorIdx={connColorIdx} undoStack={undoStack} redoStack={redoStack}
             canvasSize={canvasSize} onSetCanvasSize={onSetCanvasSize}
+            multiSelected={multiSelected} onFocusNode={onFocusNode}
+            onDeleteMultiSelected={onDeleteMultiSelected}
             onSetEditingLabel={onSetEditingLabel} onToggleConnect={onToggleConnect}
             onUnlinkSelected={onUnlinkSelected} onDeleteSelected={onDeleteSelected}
             onSelectConn={onSelectConn} onRemoveConn={onRemoveConn}
@@ -81,7 +84,7 @@ export default function Sidebar({
           />
         )}
         {sidebarTab === "templates" && (
-          <TemplatesTab onLoadTemplate={onLoadTemplate} />
+          <TemplatesTab onLoadTemplate={onLoadTemplate} nodes={nodes} />
         )}
       </div>
 
@@ -89,10 +92,12 @@ export default function Sidebar({
       <div style={{ padding: "10px 16px", borderTop: `1px solid ${DIVIDER}`, fontSize: 10, color: TEXT_DIM, lineHeight: 1.4 }}>
         {connectMode ? (
           <span style={{ color: ACCENT }}>Click a target node to link</span>
+        ) : multiSelected && multiSelected.size > 1 ? (
+          "Drag to move all \u00B7 Delete to remove \u00B7 Shift+click to toggle"
         ) : selected ? (
           "Press Delete to remove \u00B7 Double-click to rename"
         ) : (
-          "Click a node to select \u00B7 Add components above"
+          "Click a node to select \u00B7 Drag canvas to marquee-select"
         )}
       </div>
     </div>

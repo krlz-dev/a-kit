@@ -7,6 +7,7 @@ import { fetchSubscription } from '../../../../shared/lib/subscriptionApi';
 import NodeIcon from '../NodeIcon';
 import NodeInspector from './NodeInspector';
 import LinkInspector from './LinkInspector';
+import MultiSelectInspector from './MultiSelectInspector';
 
 const ALL_COMPONENTS = [
   ...COMPONENTS.map(c => ({ ...c, provider: 'generic', category: 'Generic' })),
@@ -40,6 +41,7 @@ export default function ToolsTab({
   selected, selectedConn, selectedNode, selectedConnObj,
   connectMode, animating, speed, connColorIdx, undoStack, redoStack,
   canvasSize, onSetCanvasSize,
+  multiSelected, onFocusNode, onDeleteMultiSelected,
   onSetEditingLabel, onToggleConnect, onUnlinkSelected, onDeleteSelected,
   onSelectConn, onRemoveConn, onToggleConnDirection,
   onConnLabelChange,
@@ -128,6 +130,20 @@ export default function ToolsTab({
       <span style={{ fontSize: 10, fontWeight: 600, color: TEXT_MID, letterSpacing: '0.05em' }}>{label}</span>
     </div>
   );
+
+  if (multiSelected && multiSelected.size > 1) {
+    return (
+      <div>
+        {breadcrumb('Multi-Select')}
+        <MultiSelectInspector
+          nodes={nodes} multiSelected={multiSelected}
+          onFocusNode={onFocusNode}
+          onDeleteMultiSelected={onDeleteMultiSelected}
+          onDeselectAll={onDeselectAll}
+        />
+      </div>
+    );
+  }
 
   if (selectedNode) {
     return (

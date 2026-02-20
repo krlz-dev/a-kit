@@ -36,6 +36,8 @@ export default function ArchApp() {
   const [spaceHeld, setSpaceHeld] = useState(false);
   const [isTransforming, setIsTransforming] = useState(false);
   const [cloudLoaded, setCloudLoaded] = useState(false);
+  const [multiSelected, setMultiSelected] = useState(new Set());
+  const [marquee, setMarquee] = useState(null);
   const canvasRef = useRef(null);
   const dragOff = useRef({ x: 0, y: 0 });
   const resizing = useRef(null);
@@ -45,6 +47,9 @@ export default function ArchApp() {
   const panStart = useRef(null);
   const spaceHeldRef = useRef(false);
   const wasPanning = useRef(false);
+  const marqueeStart = useRef(null);
+  const multiDragOffsets = useRef(null);
+  const wasMarquee = useRef(false);
   const transformTimer = useRef(null);
   const saveTimer = useRef(null);
 
@@ -111,6 +116,7 @@ export default function ArchApp() {
   const resetSelection = useCallback(() => {
     setSelected(null);
     setSelectedConn(null);
+    setMultiSelected(new Set());
   }, []);
 
   const { pushUndo, undo, redo, undoStack, redoStack } = useUndo(
@@ -198,7 +204,20 @@ export default function ArchApp() {
     showToast(`Added ${item.label}`);
   }, [nodes, connections, pushUndo, showToast]);
 
+  const deleteMultiSelected = useCallback(() => {
+    if (multiSelected.size === 0) return;
+    pushUndo(nodes, connections);
+    setConnections(p => p.filter(c => !multiSelected.has(c.from) && !multiSelected.has(c.to)));
+    setNodes(p => p.filter(n => !multiSelected.has(n.id)));
+    setMultiSelected(new Set());
+    showToast(`Deleted ${multiSelected.size} nodes`);
+  }, [multiSelected, nodes, connections, pushUndo, showToast]);
+
   const deleteSelected = useCallback(() => {
+    if (multiSelected.size > 0) {
+      deleteMultiSelected();
+      return;
+    }
     if (selected) {
       pushUndo(nodes, connections);
       setConnections(p => p.filter(c => c.from !== selected && c.to !== selected));
@@ -211,7 +230,7 @@ export default function ArchApp() {
       setSelectedConn(null);
       showToast("Link removed");
     }
-  }, [selected, selectedConn, nodes, connections, pushUndo, showToast]);
+  }, [selected, selectedConn, multiSelected, nodes, connections, pushUndo, showToast, deleteMultiSelected]);
 
   const unlinkSelected = useCallback(() => {
     if (!selected) return;
@@ -239,8 +258,53 @@ export default function ArchApp() {
       setConnectMode(null);
       return;
     }
+
     const rect = canvasRef.current.getBoundingClientRect();
     const px = panRef.current.x, py = panRef.current.y, z = zoomRef.current;
+
+    // Shift+click: toggle node in/out of multiSelected
+    if (e.shiftKey) {
+      setMultiSelected(prev => {
+        const next = new Set(prev);
+        // Fold current single-selected into multi
+        if (selected && !next.has(selected)) next.add(selected);
+        // Toggle clicked node
+        if (next.has(node.id)) next.delete(node.id);
+        else next.add(node.id);
+        // If only 1 left, fold back to single-select
+        if (next.size === 1) {
+          const [only] = next;
+          setSelected(only);
+          return new Set();
+        }
+        if (next.size > 0) setSelected(null);
+        return next;
+      });
+      setSelectedConn(null);
+      return;
+    }
+
+    // Click on multi-selected node (no shift): start multi-drag
+    if (multiSelected.has(node.id)) {
+      pushUndo(nodes, connections);
+      dragOff.current = { x: (e.clientX - rect.left - px) / z - node.x, y: (e.clientY - rect.top - py) / z - node.y };
+      const offsets = new Map();
+      nodes.forEach(n => {
+        if (multiSelected.has(n.id) && n.id !== node.id) {
+          offsets.set(n.id, { x: n.x - node.x, y: n.y - node.y });
+        }
+      });
+      multiDragOffsets.current = offsets;
+      setDragging(node.id);
+      groupChildren.current = [];
+      return;
+    }
+
+    // Click on non-multi-selected node (no shift): clear multi, single-select+drag
+    if (multiSelected.size > 0) {
+      setMultiSelected(new Set());
+    }
+
     dragOff.current = { x: (e.clientX - rect.left - px) / z - node.x, y: (e.clientY - rect.top - py) / z - node.y };
     setDragging(node.id);
     setSelected(node.id);
@@ -259,7 +323,7 @@ export default function ArchApp() {
     } else {
       groupChildren.current = [];
     }
-  }, [connectMode, connections, connColorIdx, bidir, nodes, pushUndo, showToast]);
+  }, [connectMode, connections, connColorIdx, bidir, nodes, selected, multiSelected, pushUndo, showToast]);
 
   const onCanvasPointerDown = useCallback((e) => {
     if (e.button === 1 || (e.button === 0 && spaceHeldRef.current)) {
@@ -271,8 +335,18 @@ export default function ArchApp() {
         startPanY: panRef.current.y,
       };
       setIsPanning(true);
+      return;
     }
-  }, []);
+    // LMB on empty canvas (not on a node): start marquee
+    if (e.button === 0 && !connectMode && !e.target.closest('[data-node]')) {
+      const rect = canvasRef.current.getBoundingClientRect();
+      const px = panRef.current.x, py = panRef.current.y, z = zoomRef.current;
+      const cx = (e.clientX - rect.left - px) / z;
+      const cy = (e.clientY - rect.top - py) / z;
+      marqueeStart.current = { x: cx, y: cy, shiftKey: e.shiftKey };
+      setMarquee({ startX: cx, startY: cy, currentX: cx, currentY: cy });
+    }
+  }, [connectMode]);
 
   const onResizeStart = useCallback((e, node) => {
     resizing.current = {
@@ -297,6 +371,16 @@ export default function ArchApp() {
       wasPanning.current = true;
       return;
     }
+    // Marquee drag
+    if (marqueeStart.current) {
+      const rect = canvasRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const px = panRef.current.x, py = panRef.current.y, z = zoomRef.current;
+      const cx = (e.clientX - rect.left - px) / z;
+      const cy = (e.clientY - rect.top - py) / z;
+      setMarquee({ startX: marqueeStart.current.x, startY: marqueeStart.current.y, currentX: cx, currentY: cy });
+      return;
+    }
     if (resizing.current) {
       const r = resizing.current;
       const z = zoomRef.current;
@@ -314,6 +398,24 @@ export default function ArchApp() {
       if (!dragNode) return p;
       const newX = Math.max(0, Math.min((e.clientX - rect.left - px) / z - dragOff.current.x, canvasSize.w - dragNode.w));
       const newY = Math.max(0, Math.min((e.clientY - rect.top - py) / z - dragOff.current.y, canvasSize.h - dragNode.h));
+
+      // Multi-drag: move all multi-selected nodes together
+      if (multiDragOffsets.current && multiDragOffsets.current.size > 0) {
+        const offsets = multiDragOffsets.current;
+        return p.map(n => {
+          if (n.id === dragging) return { ...n, x: newX, y: newY };
+          const off = offsets.get(n.id);
+          if (off) {
+            return {
+              ...n,
+              x: Math.max(0, Math.min(newX + off.x, canvasSize.w - n.w)),
+              y: Math.max(0, Math.min(newY + off.y, canvasSize.h - n.h)),
+            };
+          }
+          return n;
+        });
+      }
+
       const children = groupChildren.current;
       if (children.length === 0) {
         return p.map(n => n.id === dragging ? { ...n, x: newX, y: newY } : n);
@@ -333,9 +435,46 @@ export default function ArchApp() {
       panStart.current = null;
       setIsPanning(false);
     }
+    // Marquee completion
+    if (marqueeStart.current) {
+      const ms = marqueeStart.current;
+      const m = { startX: ms.x, startY: ms.y };
+      marqueeStart.current = null;
+      setMarquee(prev => {
+        if (!prev) return null;
+        const x1 = Math.min(m.startX, prev.currentX);
+        const y1 = Math.min(m.startY, prev.currentY);
+        const x2 = Math.max(m.startX, prev.currentX);
+        const y2 = Math.max(m.startY, prev.currentY);
+        if (x2 - x1 > 4 || y2 - y1 > 4) {
+          const hit = nodes.filter(n => {
+            const nx1 = n.x, ny1 = n.y, nx2 = n.x + n.w, ny2 = n.y + n.h;
+            return nx1 < x2 && nx2 > x1 && ny1 < y2 && ny2 > y1;
+          });
+          if (hit.length > 0) {
+            setMultiSelected(prev2 => {
+              const next = ms.shiftKey ? new Set(prev2) : new Set();
+              hit.forEach(n => next.add(n.id));
+              // If only 1, fold to single-select
+              if (next.size === 1) {
+                const [only] = next;
+                setSelected(only);
+                return new Set();
+              }
+              setSelected(null);
+              return next;
+            });
+            setSelectedConn(null);
+          }
+          wasMarquee.current = true;
+        }
+        return null;
+      });
+    }
+    multiDragOffsets.current = null;
     setDragging(null);
     resizing.current = null;
-  }, []);
+  }, [nodes]);
 
   useEffect(() => {
     window.addEventListener("pointermove", onPtrMove);
@@ -351,16 +490,28 @@ export default function ArchApp() {
       wasPanning.current = false;
       return;
     }
+    if (wasMarquee.current) {
+      wasMarquee.current = false;
+      return;
+    }
     if (!e.target.closest("[data-node]")) {
       if (connectMode) { setConnectMode(null); showToast("Cancelled"); }
       setSelected(null);
       setSelectedConn(null);
+      setMultiSelected(new Set());
     }
   }, [connectMode, showToast]);
 
   const clearSelection = useCallback(() => {
     setConnectMode(null);
     setSelected(null);
+    setSelectedConn(null);
+    setMultiSelected(new Set());
+  }, []);
+
+  const focusNode = useCallback((nodeId) => {
+    setSelected(nodeId);
+    setMultiSelected(new Set());
     setSelectedConn(null);
   }, []);
 
@@ -470,6 +621,9 @@ export default function ArchApp() {
         connectMode={connectMode} animating={animating} speed={speed}
         connColorIdx={connColorIdx} undoStack={undoStack} redoStack={redoStack}
         canvasSize={canvasSize} onSetCanvasSize={onSetCanvasSize}
+        multiSelected={multiSelected}
+        onFocusNode={focusNode}
+        onDeleteMultiSelected={deleteMultiSelected}
         onSetEditingLabel={setEditingLabel}
         onToggleConnect={onToggleConnect}
         onUnlinkSelected={unlinkSelected}
@@ -497,6 +651,7 @@ export default function ArchApp() {
         connectMode={connectMode} editingLabel={editingLabel}
         animating={animating} speed={speed} toast={toast}
         pan={pan} zoom={zoom} isPanning={isPanning} spaceHeld={spaceHeld} isTransforming={isTransforming}
+        marquee={marquee} multiSelected={multiSelected}
         onCanvasClick={onCanvasClick}
         onCanvasPointerDown={onCanvasPointerDown}
         onNodePointerDown={onNodePointerDown}

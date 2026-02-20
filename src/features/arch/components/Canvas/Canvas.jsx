@@ -1,6 +1,7 @@
 import { ACCENT, TEXT_DIM } from '../../constants';
 import ConnectionLayer from './ConnectionLayer';
 import CanvasNode from './CanvasNode';
+import MarqueeRect from './MarqueeRect';
 import Toast from '../../../../shared/components/Toast';
 
 export default function Canvas({
@@ -8,6 +9,7 @@ export default function Canvas({
   selected, selectedConn, dragging, connectMode, editingLabel,
   animating, speed, toast,
   pan, zoom, isPanning, spaceHeld, isTransforming,
+  marquee, multiSelected,
   onCanvasClick, onCanvasPointerDown,
   onNodePointerDown, onNodeDoubleClick,
   onLabelChange, onEditDone, onSelectConn, onResizeStart,
@@ -64,12 +66,15 @@ export default function Canvas({
               key={node.id} node={node}
               selected={selected} dragging={dragging}
               connectMode={connectMode} editingLabel={editingLabel}
+              isMultiSelected={multiSelected.has(node.id)}
               onPointerDown={(e) => onNodePointerDown(e, node)}
               onDoubleClick={(e) => onNodeDoubleClick(e, node.id)}
               onLabelChange={onLabelChange} onEditDone={onEditDone}
               onResizeStart={(e) => onResizeStart(e, node)}
             />
           ))}
+
+          <MarqueeRect marquee={marquee} />
         </div>
 
         {/* Fixed overlays (don't pan) */}
