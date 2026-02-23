@@ -35,6 +35,7 @@ export default function ArchApp() {
   const [isPanning, setIsPanning] = useState(false);
   const [spaceHeld, setSpaceHeld] = useState(false);
   const [isTransforming, setIsTransforming] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth > 768);
   const [cloudLoaded, setCloudLoaded] = useState(false);
   const [multiSelected, setMultiSelected] = useState(new Set());
   const [marquee, setMarquee] = useState(null);
@@ -52,6 +53,9 @@ export default function ArchApp() {
   const wasMarquee = useRef(false);
   const transformTimer = useRef(null);
   const saveTimer = useRef(null);
+  const lastTouchDist = useRef(null);
+  const lastTouchMid = useRef(null);
+  const isTwoFingerGesture = useRef(false);
 
   const { toast, showToast } = useToast();
   const { user } = useAuth();
@@ -184,6 +188,81 @@ export default function ArchApp() {
     el.addEventListener('wheel', onWheel, { passive: false });
     return () => el.removeEventListener('wheel', onWheel);
   }, [onWheel]);
+
+  // Two-finger touch gesture (pan + pinch zoom)
+  const onTouchStart = useCallback((e) => {
+    if (e.touches.length >= 2) {
+      isTwoFingerGesture.current = true;
+      setDragging(null);
+      panStart.current = null;
+      setIsPanning(false);
+      resizing.current = null;
+      marqueeStart.current = null;
+      setMarquee(null);
+      const t1 = e.touches[0], t2 = e.touches[1];
+      lastTouchDist.current = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+      lastTouchMid.current = { x: (t1.clientX + t2.clientX) / 2, y: (t1.clientY + t2.clientY) / 2 };
+    }
+  }, []);
+
+  const onTouchMove = useCallback((e) => {
+    if (e.touches.length < 2 || !isTwoFingerGesture.current) return;
+    e.preventDefault();
+    markTransforming();
+    const t1 = e.touches[0], t2 = e.touches[1];
+    const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+    const midX = (t1.clientX + t2.clientX) / 2;
+    const midY = (t1.clientY + t2.clientY) / 2;
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (!rect || !lastTouchMid.current || !lastTouchDist.current) return;
+    const scale = dist / lastTouchDist.current;
+    const prevFX = lastTouchMid.current.x - rect.left;
+    const prevFY = lastTouchMid.current.y - rect.top;
+    const cx = (prevFX - panRef.current.x) / zoomRef.current;
+    const cy = (prevFY - panRef.current.y) / zoomRef.current;
+    const curFX = midX - rect.left;
+    const curFY = midY - rect.top;
+    const newZoom = Math.max(0.2, Math.min(3, zoomRef.current * scale));
+    const newPanX = curFX - cx * newZoom;
+    const newPanY = curFY - cy * newZoom;
+    zoomRef.current = newZoom;
+    panRef.current = { x: newPanX, y: newPanY };
+    setZoom(newZoom);
+    setPan({ x: newPanX, y: newPanY });
+    lastTouchDist.current = dist;
+    lastTouchMid.current = { x: midX, y: midY };
+  }, [markTransforming]);
+
+  const onTouchEnd = useCallback((e) => {
+    if (e.touches.length < 2 && isTwoFingerGesture.current) {
+      lastTouchDist.current = null;
+      lastTouchMid.current = null;
+      setTimeout(() => { isTwoFingerGesture.current = false; }, 50);
+    }
+  }, []);
+
+  useEffect(() => {
+    const el = canvasRef.current;
+    if (!el) return;
+    el.addEventListener('touchstart', onTouchStart, { passive: false });
+    el.addEventListener('touchmove', onTouchMove, { passive: false });
+    el.addEventListener('touchend', onTouchEnd);
+    el.addEventListener('touchcancel', onTouchEnd);
+    return () => {
+      el.removeEventListener('touchstart', onTouchStart);
+      el.removeEventListener('touchmove', onTouchMove);
+      el.removeEventListener('touchend', onTouchEnd);
+      el.removeEventListener('touchcancel', onTouchEnd);
+    };
+  }, [onTouchStart, onTouchMove, onTouchEnd]);
+
+  // Auto-close sidebar on narrow screens, re-open on wide
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 768px)');
+    const onChange = (e) => setSidebarOpen(!e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
 
   const addNode = useCallback((item) => {
     pushUndo(nodes, connections);
@@ -361,6 +440,7 @@ export default function ArchApp() {
   }, []);
 
   const onPtrMove = useCallback((e) => {
+    if (isTwoFingerGesture.current) return;
     if (panStart.current) {
       markTransforming();
       const p = panStart.current;
@@ -613,8 +693,9 @@ export default function ArchApp() {
   }, [nodes, connections, pushUndo, showToast]);
 
   return (
-    <div style={{ height: "100vh", display: "flex", background: BG, color: TEXT, fontFamily: "'IBM Plex Mono', monospace", overflow: "hidden", userSelect: "none" }}>
+    <div style={{ height: "100vh", display: "flex", background: BG, color: TEXT, fontFamily: "'IBM Plex Mono', monospace", overflow: "hidden", userSelect: "none", position: "relative" }}>
       <Sidebar
+        isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)}
         nodes={nodes} connections={connections} nodeMap={nodeMap}
         selected={selected} selectedConn={selectedConn}
         selectedNode={selectedNode} selectedConnObj={selectedConnObj}
@@ -646,6 +727,7 @@ export default function ArchApp() {
         pushUndo={pushUndo} showToast={showToast}
       />
       <Canvas
+        sidebarOpen={sidebarOpen} onToggleSidebar={() => setSidebarOpen(true)}
         canvasRef={canvasRef} canvasSize={canvasSize} nodes={nodes} connections={connections} nodeMap={nodeMap}
         selected={selected} selectedConn={selectedConn} dragging={dragging}
         connectMode={connectMode} editingLabel={editingLabel}

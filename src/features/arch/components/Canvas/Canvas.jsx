@@ -5,6 +5,7 @@ import MarqueeRect from './MarqueeRect';
 import Toast from '../../../../shared/components/Toast';
 
 export default function Canvas({
+  sidebarOpen, onToggleSidebar,
   canvasRef, canvasSize, nodes, connections, nodeMap,
   selected, selectedConn, dragging, connectMode, editingLabel,
   animating, speed, toast,
@@ -78,6 +79,27 @@ export default function Canvas({
         </div>
 
         {/* Fixed overlays (don't pan) */}
+
+        {/* Sidebar toggle */}
+        {!sidebarOpen && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onToggleSidebar(); }}
+            style={{
+              position: 'absolute', top: 16, left: 16, zIndex: 20,
+              width: 40, height: 40, borderRadius: 10,
+              background: 'rgba(10,14,10,0.85)', border: '1px solid rgba(200,230,0,0.1)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', backdropFilter: 'blur(12px)',
+              color: TEXT_DIM, transition: 'all 0.2s',
+              animation: 'fadeIn 0.2s ease-out',
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <path d="M9 3v18" />
+            </svg>
+          </button>
+        )}
 
         {/* Empty state */}
         {nodes.length === 0 && (
