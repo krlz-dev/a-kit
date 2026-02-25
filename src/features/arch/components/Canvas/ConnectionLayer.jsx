@@ -3,7 +3,7 @@ import { getCenter } from '../../utils/uid';
 
 export default function ConnectionLayer({ connections, nodeMap, selectedConn, onSelectConn, animating, speed }) {
   return (
-    <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 1 }}>
+    <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 2 }}>
       <defs>
         {connections.map(conn => {
           const color = selectedConn === conn.id ? ACCENT : conn.color;

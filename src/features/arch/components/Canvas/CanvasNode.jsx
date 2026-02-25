@@ -19,7 +19,7 @@ export default function CanvasNode({
         onDoubleClick={onDoubleClick}
         style={{
           position: "absolute", left: node.x, top: node.y, width: node.w, height: node.h,
-          zIndex: isHighlighted ? 6 : 5,
+          zIndex: isHighlighted ? 1 : 0,
           background: `${node.color}0a`,
           border: `2px dashed ${isSrc ? ACCENT : isTarget ? `${ACCENT}44` : isHighlighted ? `${node.color}80` : `${node.color}25`}`,
           borderRadius: 16,
