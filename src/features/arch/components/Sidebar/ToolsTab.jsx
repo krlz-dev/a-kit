@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useParams } from 'react-router-dom';
 import { ACCENT, BG, TEXT, TEXT_DIM, TEXT_MID, SURFACE, CARD_BORDER, CONN_COLORS, COMPONENTS, CLOUD_COMPONENTS, PROVIDERS, DIVIDER } from '../../constants';
 import { CANVAS_PRESETS } from '../../utils/uid';
 import { exportAsPNG, exportAsJPG, exportAsGIF, exportAsPDF } from '../../utils/exportCanvas';
@@ -8,6 +9,7 @@ import NodeIcon from '../NodeIcon';
 import NodeInspector from './NodeInspector';
 import LinkInspector from './LinkInspector';
 import MultiSelectInspector from './MultiSelectInspector';
+import ShareModal from './ShareModal';
 
 const ALL_COMPONENTS = [
   ...COMPONENTS.map(c => ({ ...c, provider: 'generic', category: 'Generic' })),
@@ -51,8 +53,10 @@ export default function ToolsTab({
   onNodeColorChange, onAddNode, onDeselectAll,
   pushUndo, showToast,
 }) {
+  const { projectId } = useParams();
   const { user } = useAuth();
   const [isPaid, setIsPaid] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
   const [exporting, setExporting] = useState(null);
   const [exportProgress, setExportProgress] = useState(0);
   const [exportScale, setExportScale] = useState(2);
@@ -379,6 +383,15 @@ export default function ToolsTab({
             <svg width="15" height="15" viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z" fill="currentColor" /></svg>
             Import JSON
           </button>
+          <button
+            className="sidebar-btn"
+            onClick={() => setShowShareModal(true)}
+            disabled={!projectId}
+            title={!projectId ? 'Save to cloud first to share' : 'Share a read-only link'}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z" fill="currentColor" /></svg>
+            Share
+          </button>
         </div>
         <div style={{ fontSize: 9, fontWeight: 600, color: TEXT_DIM, textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: 12, marginBottom: 8 }}>Export As</div>
         <div style={{ display: 'flex', gap: 4, marginBottom: 8 }}>
@@ -422,6 +435,9 @@ export default function ToolsTab({
         )}
       </Section>
 
+      {showShareModal && projectId && (
+        <ShareModal projectId={projectId} onClose={() => setShowShareModal(false)} />
+      )}
     </div>
   );
 }

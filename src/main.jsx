@@ -44,6 +44,7 @@ const RegisterPage = lazyRetry(() => import('./features/auth/RegisterPage'));
 const ForgotPasswordPage = lazyRetry(() => import('./features/auth/ForgotPasswordPage'));
 const ResetPasswordPage = lazyRetry(() => import('./features/auth/ResetPasswordPage'));
 const ConsolePage = lazyRetry(() => import('./features/console/ConsolePage'));
+const ShareViewPage = lazyRetry(() => import('./features/share-view/ShareViewPage'));
 
 const Loading = () => (
   <div style={{
@@ -71,6 +72,7 @@ const router = createHashRouter([
   { path: '/reset-password', element: wrap(ResetPasswordPage) },
   { path: '/console', element: wrap(ConsolePage) },
   { path: '/console/:tab', element: wrap(ConsolePage) },
+  { path: '/share/:projectId', element: wrap(ShareViewPage) },
   { path: '*', element: <Navigate to="/" replace /> },
 ]);
 
