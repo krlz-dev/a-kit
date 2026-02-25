@@ -240,8 +240,8 @@ export default function ToolsTab({
       {/* Component grid */}
       <div className="component-grid-scroll" style={{ marginBottom: 6 }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-          {visible.map((item) => (
-            <div key={item.type} className="icon-tile" onClick={() => onAddNode(item)}>
+          {visible.map((item, i) => (
+            <div key={`${item.provider}-${item.type}-${i}`} className="icon-tile" onClick={() => onAddNode(item)}>
               <NodeIcon icon={item.icon} iconUrl={item.iconUrl} color={item.color} size={26} />
               <div className="icon-tooltip">
                 {item.label}
