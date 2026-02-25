@@ -23,18 +23,6 @@ export default function Sidebar({
 
   return (
     <>
-      {/* Backdrop overlay */}
-      <div
-        onClick={onClose}
-        style={{
-          position: 'absolute', inset: 0, zIndex: 25,
-          background: 'rgba(0,0,0,0.35)',
-          opacity: isOpen ? 1 : 0,
-          pointerEvents: isOpen ? 'auto' : 'none',
-          transition: 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        }}
-      />
-
       {/* Drawer */}
       <div style={{
         position: 'absolute', left: 0, top: 0, bottom: 0, width: 260, zIndex: 30,
