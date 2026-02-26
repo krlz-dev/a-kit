@@ -21,7 +21,7 @@ export default function Templates() {
           {TEMPLATES.map(t => (
             <div className="landing-template-card" key={t.name}>
               <div className="icon" style={{ color: t.color }}>{t.icon}</div>
-              <h4>{t.name}</h4>
+              <h3>{t.name}</h3>
               <p>{t.desc}</p>
             </div>
           ))}
