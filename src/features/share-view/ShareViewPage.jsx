@@ -120,7 +120,7 @@ export default function ShareViewPage() {
       }}>
         <div style={{ fontSize: 48, opacity: 0.3 }}>404</div>
         <div style={{ fontSize: 14, color: TEXT_DIM }}>{error}</div>
-        <a href="/" style={{ fontSize: 12, color: ACCENT, textDecoration: 'none', marginTop: 8 }}>Go to a-kit</a>
+        <a href="/" style={{ fontSize: 12, color: ACCENT, textDecoration: 'none', marginTop: 8 }}>Go to kit-a</a>
       </div>
     );
   }
@@ -202,7 +202,7 @@ export default function ShareViewPage() {
             fontFamily: "'IBM Plex Mono', monospace",
           }}
         >
-          a-kit
+          kit-a
         </a>
         <div style={{
           padding: '8px 14px', borderRadius: 10,

@@ -654,6 +654,11 @@ export default function ArchApp() {
     setConnections(p => p.map(c => c.id === connId ? { ...c, label: value } : c));
   }, []);
 
+  const onConnColorChange = useCallback((connId, color) => {
+    pushUndo(nodes, connections);
+    setConnections(p => p.map(c => c.id === connId ? { ...c, color } : c));
+  }, [nodes, connections, pushUndo]);
+
   const onToggleConnect = useCallback((bidirVal = false) => {
     if (connectMode === selected) {
       setConnectMode(null);
@@ -713,6 +718,7 @@ export default function ArchApp() {
         onRemoveConn={onRemoveConn}
         onToggleConnDirection={onToggleConnDirection}
         onConnLabelChange={onConnLabelChange}
+        onConnColorChange={onConnColorChange}
         onToggleAnimating={() => setAnimating(!animating)}
         onSetSpeed={setSpeed}
         onSetConnColorIdx={setConnColorIdx}

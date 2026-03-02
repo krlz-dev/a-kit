@@ -46,7 +46,7 @@ export default function ToolsTab({
   multiSelected, onFocusNode, onDeleteMultiSelected,
   onSetEditingLabel, onToggleConnect, onUnlinkSelected, onDeleteSelected,
   onSelectConn, onRemoveConn, onToggleConnDirection,
-  onConnLabelChange,
+  onConnLabelChange, onConnColorChange,
   onToggleAnimating, onSetSpeed, onSetConnColorIdx,
   onUndo, onRedo, onClearAll,
   onExportDesign, onImportDesign,
@@ -171,7 +171,7 @@ export default function ToolsTab({
     return (
       <div>
         {breadcrumb('Selected Link')}
-        <LinkInspector conn={selectedConnObj} nodeMap={nodeMap} onDelete={onDeleteSelected} onToggleDirection={() => onToggleConnDirection(selectedConnObj.id)} onConnLabelChange={onConnLabelChange} />
+        <LinkInspector conn={selectedConnObj} nodeMap={nodeMap} onDelete={onDeleteSelected} onToggleDirection={() => onToggleConnDirection(selectedConnObj.id)} onConnLabelChange={onConnLabelChange} onConnColorChange={onConnColorChange} />
       </div>
     );
   }

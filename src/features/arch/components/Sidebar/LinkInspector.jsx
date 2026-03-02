@@ -1,6 +1,6 @@
-import { ACCENT, TEXT, TEXT_DIM, SURFACE, BG } from '../../constants';
+import { ACCENT, TEXT, TEXT_DIM, SURFACE, BG, CONN_COLORS } from '../../constants';
 
-export default function LinkInspector({ conn, nodeMap, onDelete, onToggleDirection, onConnLabelChange }) {
+export default function LinkInspector({ conn, nodeMap, onDelete, onToggleDirection, onConnLabelChange, onConnColorChange }) {
   return (
     <div style={{ animation: "fadeIn 0.2s ease-out" }}>
       <div style={{ fontSize: 9, fontWeight: 600, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>Selected Link</div>
@@ -23,6 +23,19 @@ export default function LinkInspector({ conn, nodeMap, onDelete, onToggleDirecti
           onFocus={e => e.target.style.borderColor = ACCENT}
           onBlur={e => e.target.style.borderColor = SURFACE}
         />
+      </div>
+      <div style={{ marginBottom: 14 }}>
+        <div style={{ fontSize: 9, fontWeight: 600, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>Color</div>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+          {CONN_COLORS.map(c => (
+            <div key={c} onClick={() => onConnColorChange(conn.id, c)} style={{
+              width: 18, height: 18, borderRadius: "50%", background: c, cursor: "pointer",
+              border: conn.color === c ? "2px solid white" : "2px solid transparent",
+              opacity: conn.color === c ? 1 : 0.5,
+              transition: "all 0.15s",
+            }} />
+          ))}
+        </div>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
         <button className="sidebar-btn" onClick={onToggleDirection}>

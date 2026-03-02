@@ -1,4 +1,3 @@
-import { ACCENT } from '../../constants';
 import { getCenter } from '../../utils/uid';
 
 export default function ConnectionLayer({ connections, nodeMap, selectedConn, onSelectConn, animating, speed }) {
@@ -6,7 +5,7 @@ export default function ConnectionLayer({ connections, nodeMap, selectedConn, on
     <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 2 }}>
       <defs>
         {connections.map(conn => {
-          const color = selectedConn === conn.id ? ACCENT : conn.color;
+          const color = conn.color;
           return [
             <marker key={`ah-end-${conn.id}`} id={`ah-end-${conn.id}`}
               markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
@@ -40,8 +39,8 @@ export default function ConnectionLayer({ connections, nodeMap, selectedConn, on
             <path d={pathD} stroke="transparent" strokeWidth="20" fill="none"
               style={{ pointerEvents: "stroke", cursor: "pointer" }}
               onClick={(e) => { e.stopPropagation(); onSelectConn(conn.id); }} />
-            <path d={pathD} stroke={isSel ? ACCENT : conn.color} strokeWidth={isSel ? 2 : 1} fill="none"
-              opacity={isSel ? 0.55 : 0.14} strokeDasharray={isSel ? "none" : "6 5"}
+            <path d={pathD} stroke={conn.color} strokeWidth={isSel ? 2.5 : 1.2} fill="none"
+              opacity={isSel ? 0.85 : 0.38} strokeDasharray={isSel ? "none" : "6 5"}
               markerEnd={`url(#ah-end-${conn.id})`}
               markerStart={conn.bidir ? `url(#ah-start-${conn.id})` : undefined} />
             <path id={pid} d={pathD} fill="none" stroke="none" />
@@ -73,7 +72,7 @@ export default function ConnectionLayer({ connections, nodeMap, selectedConn, on
               const cy = my + ny * 0.5;
               const labelMidX = (f.x + 2 * cx + t.x) / 4;
               const labelMidY = (f.y + 2 * cy + t.y) / 4;
-              const labelColor = isSel ? ACCENT : conn.color;
+              const labelColor = conn.color;
               return (
                 <g style={{ pointerEvents: "none" }}>
                   <rect x={labelMidX - conn.label.length * 2.7 - 6} y={labelMidY - 7}

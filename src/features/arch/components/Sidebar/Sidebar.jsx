@@ -12,7 +12,7 @@ export default function Sidebar({
   multiSelected, onFocusNode, onDeleteMultiSelected,
   onSetEditingLabel, onToggleConnect, onUnlinkSelected, onDeleteSelected,
   onSelectConn, onRemoveConn, onToggleConnDirection,
-  onConnLabelChange,
+  onConnLabelChange, onConnColorChange,
   onToggleAnimating, onSetSpeed, onSetConnColorIdx,
   onUndo, onRedo, onClearAll, onLoadTemplate,
   onExportDesign, onImportDesign,
@@ -87,6 +87,7 @@ export default function Sidebar({
               onSelectConn={onSelectConn} onRemoveConn={onRemoveConn}
               onToggleConnDirection={onToggleConnDirection}
               onConnLabelChange={onConnLabelChange}
+              onConnColorChange={onConnColorChange}
               onToggleAnimating={onToggleAnimating} onSetSpeed={onSetSpeed}
               onSetConnColorIdx={onSetConnColorIdx}
               onUndo={onUndo} onRedo={onRedo} onClearAll={onClearAll}
