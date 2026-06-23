@@ -3,6 +3,7 @@ import { ACCENT, ACCENT_DIM, BG, SIDEBAR_BG, TEXT, TEXT_DIM, DIVIDER } from '../
 import ToolsTab from './ToolsTab';
 import TemplatesTab from './TemplatesTab';
 import DesignsTab from './DesignsTab';
+import AboutTab from './AboutTab';
 
 export default function Sidebar({
   isOpen, onClose,
@@ -62,6 +63,7 @@ export default function Sidebar({
             { id: "tools", label: "Tools" },
             { id: "templates", label: "Templates" },
             { id: "designs", label: "Designs" },
+            { id: "about", label: "About" },
           ].map(tab => (
             <button key={tab.id} onClick={() => setSidebarTab(tab.id)} style={{
               flex: 1, padding: "10px 0", background: "transparent", border: "none",
@@ -113,6 +115,7 @@ export default function Sidebar({
               onExportSavedDesign={onExportSavedDesign}
             />
           )}
+          {sidebarTab === "about" && <AboutTab />}
         </div>
 
         {/* Bottom hint */}
