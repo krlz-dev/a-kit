@@ -1,5 +1,4 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
 import { BG, TEXT, ACCENT, CONN_COLORS, TEMPLATES } from './constants';
 import { uid, cuid, NODE_W, NODE_H, GROUP_W, GROUP_H, CANVAS_W, CANVAS_H, CANVAS_PRESETS } from './utils/uid';
 import { useToast } from '../../shared/hooks/useToast';
@@ -8,16 +7,15 @@ import { useKeyboardShortcuts } from '../../shared/hooks/useKeyboardShortcuts';
 import {
   serializeDesign, deserializeDesign,
   exportDesignAsJSON, importDesignFromFile,
+  getSavedDesigns, saveDesign, deleteDesign,
 } from './utils/storage';
-import { fetchProject, updateProjectData } from '../../shared/lib/projectsApi';
-import { useAuth } from '../../shared/context/AuthContext';
 import Sidebar from './components/Sidebar/Sidebar';
 import Canvas from './components/Canvas/Canvas';
 
-export default function ArchApp() {
-  const { projectId } = useParams();
-  const isCloud = !!projectId;
+// Working canvas is persisted to localStorage so it survives reloads
+const WORK_KEY = 'akit-working';
 
+export default function KitApp() {
   const [nodes, setNodes] = useState([]);
   const [connections, setConnections] = useState([]);
   const [selected, setSelected] = useState(null);
@@ -36,7 +34,8 @@ export default function ArchApp() {
   const [spaceHeld, setSpaceHeld] = useState(false);
   const [isTransforming, setIsTransforming] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth > 768);
-  const [cloudLoaded, setCloudLoaded] = useState(false);
+  const [savedDesigns, setSavedDesigns] = useState(() => getSavedDesigns());
+  const [loaded, setLoaded] = useState(false);
   const [multiSelected, setMultiSelected] = useState(new Set());
   const [marquee, setMarquee] = useState(null);
   const canvasRef = useRef(null);
@@ -58,49 +57,47 @@ export default function ArchApp() {
   const isTwoFingerGesture = useRef(false);
 
   const { toast, showToast } = useToast();
-  const { user } = useAuth();
 
-  // Load default template for non-authenticated users (no cloud project)
+  // Restore the working canvas from localStorage, or load a starter template on first visit
   useEffect(() => {
-    if (isCloud || user) return;
-    const tpl = TEMPLATES[0];
-    const { nodes: n, connections: c, canvasSize: cs } = deserializeDesign(
-      { name: tpl.name, nodes: tpl.nodes, conns: tpl.conns },
-      { center: true, canvasW: canvasSize.w, canvasH: canvasSize.h }
-    );
-    setNodes(n);
-    setConnections(c);
-    if (cs) setCanvasSize(cs);
+    let restored = false;
+    try {
+      const raw = localStorage.getItem(WORK_KEY);
+      if (raw) {
+        const design = JSON.parse(raw);
+        if (design?.nodes?.length) {
+          const { nodes: n, connections: c, canvasSize: cs } = deserializeDesign(design);
+          setNodes(n);
+          setConnections(c);
+          if (cs) setCanvasSize(cs);
+          restored = true;
+        }
+      }
+    } catch { /* ignore corrupt storage */ }
+
+    if (!restored) {
+      const tpl = TEMPLATES[0];
+      const { nodes: n, connections: c, canvasSize: cs } = deserializeDesign(
+        { name: tpl.name, nodes: tpl.nodes, conns: tpl.conns },
+        { center: true, canvasW: canvasSize.w, canvasH: canvasSize.h }
+      );
+      setNodes(n);
+      setConnections(c);
+      if (cs) setCanvasSize(cs);
+    }
+    setLoaded(true);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Cloud project loading
+  // Auto-save the working canvas to localStorage (debounced 500ms)
   useEffect(() => {
-    if (!isCloud) return;
-    fetchProject(projectId).then(project => {
-      if (project?.data) {
-        const design = project.data;
-        const { nodes: n, connections: c, canvasSize: cs } = deserializeDesign(design);
-        setNodes(n);
-        setConnections(c);
-        if (cs) setCanvasSize(cs);
-      }
-      setCloudLoaded(true);
-    }).catch(() => {
-      showToast('Failed to load project');
-      setCloudLoaded(true);
-    });
-  }, [projectId, isCloud]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Cloud auto-save (debounced 2s)
-  useEffect(() => {
-    if (!isCloud || !cloudLoaded) return;
+    if (!loaded) return;
     clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
-      const design = serializeDesign('cloud', nodes, connections, canvasSize);
-      updateProjectData(projectId, design).catch(() => {});
-    }, 2000);
+      const design = serializeDesign('working', nodes, connections, canvasSize);
+      try { localStorage.setItem(WORK_KEY, JSON.stringify(design)); } catch { /* quota exceeded */ }
+    }, 500);
     return () => clearTimeout(saveTimer.current);
-  }, [nodes, connections, canvasSize, isCloud, cloudLoaded, projectId]);
+  }, [nodes, connections, canvasSize, loaded]);
 
   const markTransforming = useCallback(() => {
     setIsTransforming(true);
@@ -641,6 +638,20 @@ export default function ArchApp() {
       .catch(err => showToast(err.message || "Import failed"));
   }, [loadDesign, showToast]);
 
+  const onSaveDesign = useCallback(() => {
+    if (nodes.length === 0) return showToast("Nothing to save");
+    const name = (prompt("Save design as:", "Untitled") || "").trim();
+    if (!name) return;
+    const design = serializeDesign(name, nodes, connections, canvasSize);
+    setSavedDesigns(saveDesign(design));
+    showToast(`Saved "${name}"`);
+  }, [nodes, connections, canvasSize, showToast]);
+
+  const onDeleteDesign = useCallback((savedAt) => {
+    setSavedDesigns(deleteDesign(savedAt));
+    showToast("Design deleted");
+  }, [showToast]);
+
   const onLabelChange = useCallback((nodeId, value) => {
     setNodes(p => p.map(n => n.id === nodeId ? { ...n, label: value || n.label } : n));
   }, []);
@@ -727,6 +738,11 @@ export default function ArchApp() {
         onLoadTemplate={loadTemplate}
         onExportDesign={onExportDesign}
         onImportDesign={onImportDesign}
+        savedDesigns={savedDesigns}
+        onSaveDesign={onSaveDesign}
+        onLoadDesign={loadDesign}
+        onDeleteDesign={onDeleteDesign}
+        onExportSavedDesign={exportDesignAsJSON}
         onNodeColorChange={onNodeColorChange}
         onAddNode={addNode}
         onDeselectAll={resetSelection}

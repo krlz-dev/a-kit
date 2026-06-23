@@ -1,21 +1,19 @@
 # kit-a
 
-> A browser-based toolkit for system architecture diagrams and Gantt project planning. Drag, connect, plan, export — try free, upgrade to premium.
+> A free, browser-based editor for system architecture diagrams. Drag, connect, label, export. No account required — everything is saved locally in your browser.
 
-kit-a provides two tools: an architecture diagram editor with 14 node types, smart connections, and starter templates; and an interactive Gantt chart planner with 6 view modes, task dependencies, and multi-format export.
+kit-a is a node-based canvas for designing system architectures: drag components, connect them with labeled animated links, and export to image or JSON. It runs entirely in the browser with no backend and no sign-up.
 
-## Tools
+## Links
 
-- [Landing Page](https://kit-a.com/): Overview of kit-a toolkit features and capabilities
-- [Arch Editor](https://kit-a.com/#/arch): Drag-and-drop architecture diagram editor with 14 component types
-- [Gantt Planner](https://kit-a.com/#/gantt): Interactive Gantt chart for project planning and scheduling
+- [kit-a](https://kit-a.com/): The architecture diagram editor
 
 ## Features
 
 - 14 node types: Client, Server, Database, API, Auth, Queue, Cache, Cloud, Bucket, Function, Monitor, Mobile, Web App, Group
+- 1,800+ cloud service icons: AWS, Azure, GCP, Microsoft 365, and more
 - Smart connections: labeled, colored, directional or bidirectional with animated flow
 - 6 architecture templates: 3-Tier Web App, Microservices, Event-Driven, Auth Flow, Auth0 Integration, CI/CD Pipeline
-- 6 Gantt view modes: days, weeks, months, quarters, years, full timeline
-- Export formats: PNG (2x), JPG, animated GIF, WebM video
-- Cloud storage with account, export/import as JSON
-- Free plan: 1 project; Premium: unlimited projects + full cloud provider catalog (1,700+ icons)
+- Export formats: PNG (up to 3x), JPG, animated GIF, PDF; export/import as JSON
+- Local browser storage: save named designs and restore your working canvas automatically
+- Completely free, no account required

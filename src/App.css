@@ -17,7 +17,6 @@
   --accent-15: rgba(200,230,0,0.15);
   --accent-25: rgba(200,230,0,0.25);
   --accent-30: rgba(200,230,0,0.3);
-  --accent-35: rgba(200,230,0,0.35);
   --danger: #f87171;
   --danger-08: rgba(248,113,113,0.08);
   --danger-15: rgba(248,113,113,0.15);
@@ -34,10 +33,6 @@ body { font-family: 'IBM Plex Mono', monospace; }
 @keyframes toastSlide {
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
-}
-@keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 0 12px var(--accent-15); }
-  50% { box-shadow: 0 0 28px var(--accent-35); }
 }
 @keyframes dotPulse {
   0%, 100% { transform: scale(1); opacity: 0.7; }
@@ -97,19 +92,6 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .conn-color-dot:hover { transform: scale(1.2); }
 .conn-color-dot.active { border-color: white; transform: scale(1.15); }
-
-.dir-toggle {
-  width: 32px; height: 24px; border-radius: 6px;
-  background: transparent; border: 1px solid var(--accent-10);
-  color: var(--text-mid); font-size: 14px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.15s; font-family: inherit;
-}
-.dir-toggle:hover { background: var(--accent-05); color: var(--text); }
-.dir-toggle.active {
-  background: var(--accent-08); color: var(--accent);
-  border-color: var(--accent-15);
-}
 
 /* Icon grid tile with tooltip */
 .icon-tile {

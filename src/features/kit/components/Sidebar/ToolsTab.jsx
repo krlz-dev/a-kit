@@ -1,15 +1,11 @@
-import { useState, useMemo, useEffect, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import { useState, useMemo, useCallback } from 'react';
 import { ACCENT, BG, TEXT, TEXT_DIM, TEXT_MID, SURFACE, CARD_BORDER, CONN_COLORS, COMPONENTS, CLOUD_COMPONENTS, PROVIDERS, DIVIDER } from '../../constants';
 import { CANVAS_PRESETS } from '../../utils/uid';
 import { exportAsPNG, exportAsJPG, exportAsGIF, exportAsPDF } from '../../utils/exportCanvas';
-import { useAuth } from '../../../../shared/context/AuthContext';
-import { fetchSubscription } from '../../../../shared/lib/subscriptionApi';
 import NodeIcon from '../NodeIcon';
 import NodeInspector from './NodeInspector';
 import LinkInspector from './LinkInspector';
 import MultiSelectInspector from './MultiSelectInspector';
-import ShareModal from './ShareModal';
 
 const ALL_COMPONENTS = [
   ...COMPONENTS.map(c => ({ ...c, provider: 'generic', category: 'Generic' })),
@@ -49,14 +45,10 @@ export default function ToolsTab({
   onConnLabelChange, onConnColorChange,
   onToggleAnimating, onSetSpeed, onSetConnColorIdx,
   onUndo, onRedo, onClearAll,
-  onExportDesign, onImportDesign,
+  onExportDesign, onImportDesign, onSaveDesign,
   onNodeColorChange, onAddNode, onDeselectAll,
   pushUndo, showToast,
 }) {
-  const { projectId } = useParams();
-  const { user } = useAuth();
-  const [isPaid, setIsPaid] = useState(false);
-  const [showShareModal, setShowShareModal] = useState(false);
   const [exporting, setExporting] = useState(null);
   const [exportProgress, setExportProgress] = useState(0);
   const [exportScale, setExportScale] = useState(2);
@@ -65,13 +57,6 @@ export default function ToolsTab({
   const [visibleCount, setVisibleCount] = useState(50);
   const [openSections, setOpenSections] = useState({ canvas: true, controls: true, speed: false, linkColor: false, file: false });
   const toggle = useCallback((key) => setOpenSections(s => ({ ...s, [key]: !s[key] })), []);
-
-  useEffect(() => {
-    if (!user) { setIsPaid(false); return; }
-    fetchSubscription().then(sub => {
-      setIsPaid(sub?.plan === 'monthly' || sub?.plan === 'lifetime');
-    }).catch(() => setIsPaid(false));
-  }, [user]);
 
   const doExport = async (type, fn) => {
     setExporting(type);
@@ -89,9 +74,7 @@ export default function ToolsTab({
 
   const filtered = useMemo(() => {
     let list = ALL_COMPONENTS;
-    if (!isPaid) {
-      list = list.filter(c => c.provider === 'generic');
-    } else if (activeProvider !== 'all') {
+    if (activeProvider !== 'all') {
       list = list.filter(c => c.provider === activeProvider);
     }
     if (searchQuery.trim()) {
@@ -103,13 +86,9 @@ export default function ToolsTab({
       );
     }
     return list;
-  }, [searchQuery, activeProvider, isPaid]);
+  }, [searchQuery, activeProvider]);
 
   const handleProviderChange = (id) => {
-    if (!isPaid && id !== 'all' && id !== 'generic') {
-      showToast('Upgrade to unlock cloud components');
-      return;
-    }
     setActiveProvider(id);
     setVisibleCount(50);
   };
@@ -213,32 +192,22 @@ export default function ToolsTab({
             transition: 'all 0.15s',
           }}
         >All</button>
-        {PROVIDERS.map(p => {
-          const isCloudTab = p.id !== 'generic';
-          const isLocked = !isPaid && isCloudTab;
-          return (
-            <button
-              key={p.id}
-              onClick={() => handleProviderChange(p.id)}
-              style={{
-                padding: '4px 10px', borderRadius: 20, border: 'none', cursor: 'pointer',
-                fontSize: 10, fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0,
-                background: activeProvider === p.id ? p.color : SURFACE,
-                color: activeProvider === p.id ? '#fff' : TEXT_MID,
-                opacity: isLocked ? 0.5 : 1,
-                transition: 'all 0.15s',
-                display: 'flex', alignItems: 'center', gap: 3,
-              }}
-            >
-              {p.label}
-              {isLocked && (
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z" />
-                </svg>
-              )}
-            </button>
-          );
-        })}
+        {PROVIDERS.map(p => (
+          <button
+            key={p.id}
+            onClick={() => handleProviderChange(p.id)}
+            style={{
+              padding: '4px 10px', borderRadius: 20, border: 'none', cursor: 'pointer',
+              fontSize: 10, fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0,
+              background: activeProvider === p.id ? p.color : SURFACE,
+              color: activeProvider === p.id ? '#fff' : TEXT_MID,
+              transition: 'all 0.15s',
+              display: 'flex', alignItems: 'center', gap: 3,
+            }}
+          >
+            {p.label}
+          </button>
+        ))}
       </div>
 
       {/* Component grid */}
@@ -259,7 +228,7 @@ export default function ToolsTab({
       </div>
 
       {/* Result count + Show more */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: !isPaid ? 8 : 16 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <span style={{ fontSize: 10, color: TEXT_DIM }}>{filtered.length} components</span>
         {hasMore && (
           <button
@@ -272,26 +241,6 @@ export default function ToolsTab({
           >Show more</button>
         )}
       </div>
-
-      {/* Upgrade banner for free/try users */}
-      {!isPaid && (
-        <div style={{
-          padding: '8px 12px', borderRadius: 10, marginBottom: 16,
-          background: SURFACE, border: `1px solid ${CARD_BORDER}`,
-          display: 'flex', alignItems: 'center', gap: 8,
-        }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill={ACCENT}>
-            <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z" />
-          </svg>
-          <span style={{ fontSize: 10, color: TEXT_MID, flex: 1 }}>
-            Unlock 1800+ cloud components —{' '}
-            <a
-              href="/#/console/billing"
-              style={{ color: ACCENT, fontWeight: 600, textDecoration: 'none' }}
-            >Upgrade</a>
-          </span>
-        </div>
-      )}
 
       <Section label="Canvas" open={openSections.canvas} onToggle={() => toggle('canvas')}>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -375,6 +324,10 @@ export default function ToolsTab({
 
       <Section label="File" open={openSections.file} onToggle={() => toggle('file')}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+          <button className="sidebar-btn" onClick={onSaveDesign} disabled={nodes.length === 0} title="Save to this browser">
+            <svg width="15" height="15" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z" fill="currentColor" /></svg>
+            Save design
+          </button>
           <button className="sidebar-btn" onClick={onExportDesign} disabled={nodes.length === 0}>
             <svg width="15" height="15" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="currentColor" /></svg>
             Export JSON
@@ -382,15 +335,6 @@ export default function ToolsTab({
           <button className="sidebar-btn" onClick={onImportDesign}>
             <svg width="15" height="15" viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z" fill="currentColor" /></svg>
             Import JSON
-          </button>
-          <button
-            className="sidebar-btn"
-            onClick={() => setShowShareModal(true)}
-            disabled={!projectId}
-            title={!projectId ? 'Save to cloud first to share' : 'Share a read-only link'}
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z" fill="currentColor" /></svg>
-            Share
           </button>
         </div>
         <div style={{ fontSize: 9, fontWeight: 600, color: TEXT_DIM, textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: 12, marginBottom: 8 }}>Export As</div>
@@ -434,10 +378,6 @@ export default function ToolsTab({
           </div>
         )}
       </Section>
-
-      {showShareModal && projectId && (
-        <ShareModal projectId={projectId} onClose={() => setShowShareModal(false)} />
-      )}
     </div>
   );
 }

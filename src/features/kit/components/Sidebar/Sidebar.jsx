@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ACCENT, ACCENT_DIM, BG, SIDEBAR_BG, TEXT, TEXT_DIM, DIVIDER } from '../../constants';
 import ToolsTab from './ToolsTab';
 import TemplatesTab from './TemplatesTab';
+import DesignsTab from './DesignsTab';
 
 export default function Sidebar({
   isOpen, onClose,
@@ -16,6 +17,7 @@ export default function Sidebar({
   onToggleAnimating, onSetSpeed, onSetConnColorIdx,
   onUndo, onRedo, onClearAll, onLoadTemplate,
   onExportDesign, onImportDesign,
+  savedDesigns, onSaveDesign, onLoadDesign, onDeleteDesign, onExportSavedDesign,
   onNodeColorChange, onAddNode, onDeselectAll,
   pushUndo, showToast,
 }) {
@@ -39,7 +41,7 @@ export default function Sidebar({
                 <svg width="14" height="14" viewBox="0 0 24 24"><path d="M14 12l-2 2-2-2 2-2 2 2zm-2-6l2.12 2.12 2.5-2.5L12 1 7.38 5.62l2.5 2.5L12 6zm-6 6l2.12-2.12-2.5-2.5L1 12l4.62 4.62 2.5-2.5L6 12zm12 0l-2.12 2.12 2.5 2.5L23 12l-4.62-4.62-2.5 2.5L18 12zm-6 6l-2.12-2.12-2.5 2.5L12 23l4.62-4.62-2.5-2.5L12 18z" fill={BG} /></svg>
               </div>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: TEXT, letterSpacing: "-0.01em" }}>kit-a Arch</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: TEXT, letterSpacing: "-0.01em" }}>kit-a</div>
                 <div style={{ fontSize: 10, color: TEXT_DIM, fontFamily: "'IBM Plex Mono', monospace" }}>v1.0</div>
               </div>
             </a>
@@ -59,6 +61,7 @@ export default function Sidebar({
           {[
             { id: "tools", label: "Tools" },
             { id: "templates", label: "Templates" },
+            { id: "designs", label: "Designs" },
           ].map(tab => (
             <button key={tab.id} onClick={() => setSidebarTab(tab.id)} style={{
               flex: 1, padding: "10px 0", background: "transparent", border: "none",
@@ -93,6 +96,7 @@ export default function Sidebar({
               onUndo={onUndo} onRedo={onRedo} onClearAll={onClearAll}
               onExportDesign={onExportDesign}
               onImportDesign={onImportDesign}
+              onSaveDesign={onSaveDesign}
               onNodeColorChange={onNodeColorChange}
               onAddNode={onAddNode} onDeselectAll={onDeselectAll}
               pushUndo={pushUndo} showToast={showToast}
@@ -100,6 +104,14 @@ export default function Sidebar({
           )}
           {sidebarTab === "templates" && (
             <TemplatesTab onLoadTemplate={onLoadTemplate} nodes={nodes} />
+          )}
+          {sidebarTab === "designs" && (
+            <DesignsTab
+              savedDesigns={savedDesigns}
+              onLoadDesign={onLoadDesign}
+              onDeleteDesign={onDeleteDesign}
+              onExportSavedDesign={onExportSavedDesign}
+            />
           )}
         </div>
 
